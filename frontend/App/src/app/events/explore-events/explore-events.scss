@@ -1,0 +1,57 @@
+/* src/app/events/explore-events/explore-events.component.scss */
+.layout-container {
+    height: 100vh;
+  }
+  
+  .toolbar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  .spacer {
+    flex: 1;
+  }
+  
+  .search {
+    margin-right: 16px;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .event-card img {
+    height: 160px;
+    object-fit: cover;
+  }
+  
+  .create-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #f5f5f5;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    color: gray;
+  }
+  

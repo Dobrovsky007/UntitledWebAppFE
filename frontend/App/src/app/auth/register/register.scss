@@ -1,0 +1,41 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.register-card {
+  padding: 2rem;
+  max-width: 420px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background-color: #D62828FF !important; 
+  color: #fff !important;
+
+  &:hover {
+    background-color: #ff0000 !important; // even darker on hover
+  }
+}
