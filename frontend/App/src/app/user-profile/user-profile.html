@@ -1,0 +1,62 @@
+<div class="user-profile-container">
+  <!-- Profile Header -->
+  <mat-card class="profile-card">
+    <div class="profile-header">
+      <!-- Profile Image -->
+      <div class="avatar-container">
+        <img [src]="user.avatar || 'assets/default-avatar.png'" alt="Profile" class="avatar" />
+        <input type="file" (change)="onFileSelected($event)" hidden #fileInput />
+        <button mat-stroked-button color="primary" (click)="fileInput.click()">Change Photo</button>
+      </div>
+
+      <!-- User Info -->
+      <div class="user-info">
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.bio }}</p>
+        <div class="trust-score">
+          Trust Score: 
+          <span class="score" [ngClass]="{'high': user.trustScore >= 70, 'low': user.trustScore < 70}">
+            {{ user.trustScore }} / 100
+          </span>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="profile-details">
+    <!-- Preferred Sports -->
+    <mat-card class="sports-card">
+      <h3>Preferred Sports & Skills</h3>
+      <ul>
+        <li *ngFor="let sport of user.sports">
+          {{ sport.name }}
+          <span class="badge" [ngClass]="sport.level.toLowerCase()">{{ sport.level }}</span>
+        </li>
+      </ul>
+    </mat-card>
+
+    <!-- Safety & Trust -->
+    <mat-card class="safety-card">
+      <h3>Safety & Trust</h3>
+      <p>
+        <mat-icon color="primary">verified</mat-icon>
+        Profile Verification: <span class="verified">Verified</span>
+      </p>
+      <button mat-stroked-button color="warn">Report User</button>
+      <button mat-stroked-button>Block User</button>
+    </mat-card>
+  </div>
+
+  <!-- Event History -->
+  <mat-card class="history-card">
+    <h3>Event History</h3>
+    <div class="event" *ngFor="let event of user.events">
+      <img [src]="event.image" alt="Event" />
+      <div class="event-info">
+        <h4>{{ event.title }}</h4>
+        <p>{{ event.sport }} • {{ event.date | date }} • {{ event.location }}</p>
+      </div>
+      <span class="status" [ngClass]="event.status.toLowerCase()">{{ event.status }}</span>
+    </div>
+  </mat-card>
+</div>

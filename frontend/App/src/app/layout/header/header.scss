@@ -1,0 +1,46 @@
+.header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  padding-top: 20px;
+  overflow: hidden;
+  
+
+  .center-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+
+    .search-field {
+      width: 50%;
+      min-width: 250px;
+
+      .mat-mdc-form-field-flex {
+        border-radius: 20px !important;
+        min-height: 36px !important; // adjust as needed
+        height: 36px !important;  
+      }
+
+      input {
+        height: 24px !important;     // adjust as needed
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        font-size: 1rem;
+  }
+    }
+  }
+
+  .right-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+}

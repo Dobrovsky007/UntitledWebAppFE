@@ -1,0 +1,88 @@
+.user-profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-card {
+  padding: 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.trust-score .score.high {
+  color: green;
+  font-weight: bold;
+}
+.trust-score .score.low {
+  color: red;
+  font-weight: bold;
+}
+
+.profile-details {
+  display: flex;
+  gap: 20px;
+}
+
+mat-card {
+  flex: 1;
+  padding: 15px;
+}
+
+.badge {
+  margin-left: 10px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: white;
+}
+.badge.beginner { background-color: #4caf50; }
+.badge.intermediate { background-color: #ff9800; }
+.badge.advanced { background-color: #2196f3; }
+
+.history-card .event {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.history-card .event img {
+  width: 60px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.status {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.status.completed { background-color: #4caf50; color: white; }
+.status.upcoming { background-color: #2196f3; color: white; }
+.status.cancelled { background-color: #f44336; color: white; }
