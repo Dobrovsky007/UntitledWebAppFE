@@ -1,22 +1,14 @@
 <div class="sidebar">
-  <div class="brand">
-    <mat-icon>sports</mat-icon>
-    <span class="brand-text">Eventify</span>
-  </div>
-
-  <mat-divider></mat-divider>
-
-  <mat-nav-list>
-    <a mat-list-item
-       *ngFor="let item of navItems"
-       [routerLink]="item.path"
-       routerLinkActive="active-link"
-       [routerLinkActiveOptions]="{ exact: true }">
-      <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-      <span class="nav-label">{{ item.label }}</span>
-    </a>
-  </mat-nav-list>
-
+  <nav>
+    <ul class="nav-list">
+      <li *ngFor="let item of navItems">
+        <a [routerLink]="item.path" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="nav-icon" [ngClass]="item.icon"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
   <div class="sidebar-footer">
     <small>Company • Support • Legal</small>
   </div>

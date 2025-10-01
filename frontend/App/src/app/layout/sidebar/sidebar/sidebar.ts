@@ -1,22 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatDividerModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss'
 })
 export class Sidebar {
   navItems = [
-    { path: '/explore-events', label: 'Explore Events', icon: 'explore' },
-    { path: '/my-events', label: 'My Events', icon: 'event' },
-    { path: '/create-event', label: 'Create Event', icon: 'add_circle' },
-    { path: '/notifications', label: 'Notifications', icon: 'notifications' },
-    { path: '/profile', label: 'User Profile', icon: 'person' }
+    { path: '/explore-events', label: 'Explore Events', icon: 'fa-solid fa-compass' },
+    { path: '/my-events', label: 'My Events', icon: 'fa-solid fa-calendar-days' },
+    { path: '/create-event', label: 'Create Event', icon: 'fa-solid fa-plus-circle' },
+    { path: '/notifications', label: 'Notifications', icon: 'fa-solid fa-bell' },
+    { path: '/profile', label: 'User Profile', icon: 'fa-solid fa-user' }
   ];
 }

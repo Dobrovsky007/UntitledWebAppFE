@@ -21,7 +21,6 @@ export const routes: Routes = [
     ]
   },
 
-  // public pages
   { path: 'login', component: Login },
   { path: 'register', component: Register },
 

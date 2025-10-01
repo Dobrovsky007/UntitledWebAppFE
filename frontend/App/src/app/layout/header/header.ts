@@ -21,4 +21,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class Header {
   searchQuery = '';
+  showSearch = false;
+
+  toggleSearch() {
+    this.showSearch = !this.showSearch;
+    // Optionally focus the input when shown
+    setTimeout(() => {
+      const el = document.getElementById('search-input');
+      if (el) (el as HTMLInputElement).focus();
+    }, 0);
+  }
 }

@@ -1,46 +1,120 @@
 .header-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 1000;
+  background: #003049FF !important;
+  color: #fff !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 12px;
-  padding-top: 20px;
-  overflow: hidden;
-  
+  height: 48px;
+  min-height: 48px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .mat-icon,
+  button[mat-icon-button] .mat-icon {
+    color: #fff !important;
+  }
+
+  .avatar {
+    border: 2px solid #fff;
+  }
 
   .center-section {
     flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
 
     .search-field {
-      width: 50%;
-      min-width: 250px;
+      width: 250px;
+      min-width: 0;
+      transition: width 0.2s, opacity 0.2s;
+      font-size: 0.85rem;
 
       .mat-mdc-form-field-flex {
-        border-radius: 20px !important;
-        min-height: 36px !important; // adjust as needed
-        height: 36px !important;  
+        border-radius: 12px !important;
+        min-height: 24px !important;
+        height: 24px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+
+      .mat-mdc-text-field-wrapper {
+        min-height: 24px !important;
+        height: 24px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
       }
 
       input {
-        height: 24px !important;     // adjust as needed
+        height: 18px !important;
+        min-height: 18px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-        font-size: 1rem;
-  }
+        font-size: 0.85rem;
+        line-height: 18px !important;
+      }
+    }
+
+    .custom-search-field {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #bbb;
+      padding: 0 4px 0 10px;
+      height: 28px;
+      width: 250px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+      input {
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 0.95rem;
+        height: 24px;
+        width: 100%;
+        padding: 0;
+        margin-right: 4px;
+        color: #222;
+      }
     }
   }
 
   .right-section {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 
     .avatar {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       object-fit: cover;
     }
   }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-right: 16px;
+
+    .app-logo {
+      height: 180px;
+      width: auto;
+      display: block;
+    }
+  }
+}
+
+
+body,
+.main-content,
+.sidebar {
+  padding-top: 48px; 
 }
