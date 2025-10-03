@@ -5,35 +5,40 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" />
-          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-            Email is required
-          </mat-error>
-          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-            Enter a valid email
-          </mat-error>
+        <mat-label>Username</mat-label>
+        <input matInput type="text" formControlName="username" placeholder="Enter your username" />
+        <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+          Username is required
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
-          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-            Password is required
-          </mat-error>
-          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-            Minimum 6 characters
-          </mat-error>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password" />
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
       </mat-form-field>
 
       <div class="actions">
         <mat-checkbox formControlName="remember">Remember me</mat-checkbox>
-        <a class="forgot-password" href="#">Forgot password?</a>
       </div>
 
-      
-      <button mat-raised-button color="primary" class="full-width login-btn" type="submit">Log In</button>
-      <button mat-stroked-button color="primary" class="full-width" type="button" routerLink="/register">Create an Account</button>
+      <div class="button-group">
+        <button mat-raised-button color="primary" class="full-width login-btn" type="submit" [disabled]="!loginForm.valid || loading">
+          {{loading ? 'Logging in...' : 'Log In'}}
+        </button>
+        <button mat-stroked-button color="primary" class="full-width" type="button" routerLink="/register">
+          Create an Account
+        </button>
+      </div>
+
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
     </form>
   </mat-card>
 </div>

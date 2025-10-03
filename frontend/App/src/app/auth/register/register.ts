@@ -1,53 +1,66 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../auth';
-
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule,
-    FormsModule,
+  imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
     MatInputModule,
-    MatCheckboxModule,
     MatButtonModule,
-    MatIconModule],
+    MatFormFieldModule,
+    MatCheckboxModule,
+    MatIconModule,
+    RouterModule
+  ],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
 export class Register {
   registerForm: FormGroup;
-  hidePassword = true;
   error: string | null = null;
+  loading = false;
+  hidePassword = true;
 
-  constructor(private fb: FormBuilder, private auth: Auth) {
+  constructor(
+    private fb: FormBuilder, 
+    private auth: Auth,
+    private router: Router
+  ) {
     this.registerForm = this.fb.group({
-      name: ['', Validators.required],
+      username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      agreeTerms: [false, Validators.requiredTrue]
     });
   }
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.auth.register(this.registerForm.value).subscribe({
+      this.loading = true;
+      this.error = null;
+      
+      const { username, email, password } = this.registerForm.value;
+      const requestData = { username, email, password };
+      
+      this.auth.register(requestData).subscribe({
         next: (res) => {
-          // handle success (e.g., redirect to login)
+          this.loading = false;
+          this.router.navigate(['/login']);
         },
         error: (err) => {
           this.error = err.error?.message || 'Registration failed';
+          this.loading = false;
         }
       });
     }
