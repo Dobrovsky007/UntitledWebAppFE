@@ -8,6 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { Auth } from '../auth';
 
 @Component({
   selector: 'app-login',
@@ -25,18 +26,28 @@ import { RouterModule } from '@angular/router';
   styleUrl: './login.scss'
 })
 export class Login {
-  hidePassword = true;
   loginForm: FormGroup;
+  hidePassword = true;
+  error: string | null = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private auth: Auth) {
     this.loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    remember: [false]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
     });
   }
 
   onSubmit() {
-    console.log(this.loginForm.value);
+    if (this.loginForm.valid) {
+      const { email, password } = this.loginForm.value;
+      this.auth.login(email, password).subscribe({
+        next: (res) => {
+          
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Login failed';
+        }
+      });
+    }
   }
 }

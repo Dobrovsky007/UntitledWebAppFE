@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Auth } from '../auth';
 
 
 @Component({
@@ -27,19 +28,28 @@ import { Router } from '@angular/router';
   styleUrl: './register.scss'
 })
 export class Register {
-  hidePassword = true;
   registerForm: FormGroup;
+  hidePassword = true;
+  error: string | null = null;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private auth: Auth) {
     this.registerForm = this.fb.group({
-      fullName: ['', Validators.required],
+      name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      agreeTerms: [false, Validators.requiredTrue]
+      password: ['', Validators.required]
     });
   }
 
   onSubmit() {
-    console.log(this.registerForm.value);
+    if (this.registerForm.valid) {
+      this.auth.register(this.registerForm.value).subscribe({
+        next: (res) => {
+          // handle success (e.g., redirect to login)
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Registration failed';
+        }
+      });
+    }
   }
 }
