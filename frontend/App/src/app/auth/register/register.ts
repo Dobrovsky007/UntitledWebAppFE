@@ -59,7 +59,11 @@ export class Register {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          this.error = err.error?.message || 'Registration failed';
+          if (err.status === 400) {
+            this.error = 'Registration failed. Please check your input or try a different username/email.';
+          } else {
+            this.error = err.error?.message || 'Registration failed';
+          }
           this.loading = false;
         }
       });

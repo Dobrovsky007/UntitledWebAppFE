@@ -90,6 +90,11 @@
     align-items: center;
     gap: 8px;
 
+    // Target the specific avatar button class
+    .avatar-button {
+      transform: translateY(-6px); // Move only the avatar button up by 4 pixels
+    }
+
     .avatar {
       width: 32px;
       height: 32px;
@@ -112,6 +117,14 @@
   }
 }
 
+.user-menu-header {
+  padding: 8px 16px;
+
+  .username {
+    font-weight: 600;
+    color: #333;
+  }
+}
 
 body,
 .main-content,

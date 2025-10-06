@@ -1,20 +1,47 @@
 <div class="user-profile-container">
-  <!-- Profile Header -->
+  
   <mat-card class="profile-card">
     <div class="profile-header">
-      <!-- Profile Image -->
+      
       <div class="avatar-container">
-        <img [src]="user.avatar || 'assets/default-avatar.png'" alt="Profile" class="avatar" />
-        <input type="file" (change)="onFileSelected($event)" hidden #fileInput />
-        <button mat-stroked-button color="primary" (click)="fileInput.click()">Change Photo</button>
+        <div class="avatar-wrapper" (click)="fileInput.click()">
+          <img [src]="user.avatar || 'assets/default-avatar.png'" alt="Profile" class="avatar" />
+          <div class="avatar-overlay">
+            <mat-icon>camera_alt</mat-icon>
+          </div>
+        </div>
+        <input type="file" (change)="onFileSelected($event)" hidden #fileInput accept="image/*" />
       </div>
 
-      <!-- User Info -->
       <div class="user-info">
-        <h2>{{ user.name }}</h2>
-        <p>{{ user.bio }}</p>
+        <h2>{{ user.username }}</h2>
+        
+        <!-- Editable Bio Section -->
+        <div class="bio-section" *ngIf="!editingBio">
+          <p class="user-bio" (click)="startEditingBio()">
+            {{ user.bio || 'Click to add a bio...' }}
+            <mat-icon class="edit-icon">edit</mat-icon>
+          </p>
+        </div>
+
+        <div class="bio-edit-section" *ngIf="editingBio">
+          <mat-form-field appearance="outline" class="bio-field">
+            <textarea matInput 
+                      [(ngModel)]="tempBio" 
+                      placeholder="Tell us about yourself..."
+                      rows="3"
+                      maxlength="200">
+            </textarea>
+            <mat-hint>{{ (tempBio || '').length }}/200</mat-hint>
+          </mat-form-field>
+          <div class="bio-actions">
+            <button mat-button (click)="cancelEditingBio()">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveBio()">Save</button>
+          </div>
+        </div>
+
         <div class="trust-score">
-          Trust Score: 
+          <span class="trust-label">Trust Score</span>
           <span class="score" [ngClass]="{'high': user.trustScore >= 70, 'low': user.trustScore < 70}">
             {{ user.trustScore }} / 100
           </span>
@@ -24,18 +51,59 @@
   </mat-card>
 
   <div class="profile-details">
-    <!-- Preferred Sports -->
+    
     <mat-card class="sports-card">
-      <h3>Preferred Sports & Skills</h3>
-      <ul>
-        <li *ngFor="let sport of user.sports">
-          {{ sport.name }}
+      <div class="sports-header">
+        <h3>Preferred Sports & Skills</h3>
+        <button mat-icon-button color="primary" (click)="startAddingSport()" *ngIf="!editingSports">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <!-- Display existing sports -->
+      <div class="sports-list" *ngIf="!editingSports">
+        <div class="sport-item" *ngFor="let sport of user.sports; let i = index">
+          <span class="sport-name">{{ sport.name }}</span>
           <span class="badge" [ngClass]="sport.level.toLowerCase()">{{ sport.level }}</span>
-        </li>
-      </ul>
+          <button mat-icon-button (click)="removeSport(i)" class="remove-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="no-sports" *ngIf="user.sports.length === 0">
+          <p>No sports added yet. Click the + button to add your favorite sports!</p>
+        </div>
+      </div>
+
+      <!-- Add/Edit sports form -->
+      <div class="sports-edit-section" *ngIf="editingSports">
+        <mat-form-field appearance="outline" class="sport-select">
+          <mat-label>Choose Sport</mat-label>
+          <mat-select [(ngModel)]="newSport.name">
+            <mat-option *ngFor="let sport of availableSports" [value]="sport">
+              {{ sport }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="level-select">
+          <mat-label>Skill Level</mat-label>
+          <mat-select [(ngModel)]="newSport.level">
+            <mat-option value="Beginner">Beginner</mat-option>
+            <mat-option value="Intermediate">Intermediate</mat-option>
+            <mat-option value="Advanced">Advanced</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="sports-actions">
+          <button mat-button (click)="cancelAddingSport()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="addSport()" [disabled]="!newSport.name || !newSport.level">
+            Add Sport
+          </button>
+        </div>
+      </div>
     </mat-card>
 
-    <!-- Safety & Trust -->
+    
     <mat-card class="safety-card">
       <h3>Safety & Trust</h3>
       <p>
@@ -47,7 +115,6 @@
     </mat-card>
   </div>
 
-  <!-- Event History -->
   <mat-card class="history-card">
     <h3>Event History</h3>
     <div class="event" *ngFor="let event of user.events">

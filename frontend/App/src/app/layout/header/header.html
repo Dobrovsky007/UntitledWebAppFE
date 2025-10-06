@@ -19,11 +19,15 @@
     <button mat-icon-button (click)="toggleSearch()">
       <mat-icon>search</mat-icon>
     </button>
-    <button mat-icon-button [matMenuTriggerFor]="menu">
-      <img class="avatar" src="assets/default-avatar.png" alt="User" />
+    <button mat-icon-button class="avatar-button" [matMenuTriggerFor]="menu">
+      <img class="avatar" [src]="userAvatar" alt="User" />
     </button>
     <mat-menu #menu="matMenu">
-      <button mat-menu-item routerLink="/profile">
+      <div class="user-menu-header">
+        <span class="username">{{ userName }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/app/profile">
         <mat-icon>person</mat-icon>
         <span>Profile</span>
       </button>

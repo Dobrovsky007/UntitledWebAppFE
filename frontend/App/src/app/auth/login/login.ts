@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../auth';
 import { MatIconModule } from '@angular/material/icon';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -35,7 +36,8 @@ export class Login {
   constructor(
     private fb: FormBuilder, 
     private auth: Auth,
-    private router: Router
+    private router: Router,
+    private userService: UserService // Add UserService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -54,7 +56,19 @@ export class Login {
       this.auth.login(username, password).subscribe({
         next: (res) => {
           this.loading = false;
-          this.router.navigate(['/app/profile']);
+          
+          
+          this.userService.loadUserProfile().subscribe({
+            next: (userData) => {
+              this.userService.setUser(userData);
+              this.router.navigate(['/app/profile']);
+            },
+            error: (err) => {
+              
+              this.userService.setUser({ username: username });
+              this.router.navigate(['/app/profile']);
+            }
+          });
         },
         error: (err) => {
           this.error = err.error?.message || 'Login failed';
