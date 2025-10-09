@@ -55,22 +55,22 @@ export class Login {
       
       this.auth.login(username, password).subscribe({
         next: (res) => {
+          console.log('Login response:', res);
           this.loading = false;
           
-          
-          this.userService.loadUserProfile().subscribe({
-            next: (userData) => {
-              this.userService.setUser(userData);
-              this.router.navigate(['/app/profile']);
-            },
-            error: (err) => {
-              
-              this.userService.setUser({ username: username });
-              this.router.navigate(['/app/profile']);
-            }
-          });
+          if (res.token) {
+            localStorage.setItem('authToken', res.token);
+            console.log('Token stored:', res.token.substring(0, 20) + '...');
+            
+            // Skip userService.loadUserProfile() and go directly to profile
+            this.router.navigate(['/app/profile']);
+          } else {
+            console.error('No token in response:', res);
+            this.error = 'No authentication token received';
+          }
         },
         error: (err) => {
+          console.error('Login error:', err);
           this.error = err.error?.message || 'Login failed';
           this.loading = false;
         }

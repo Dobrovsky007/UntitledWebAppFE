@@ -5,7 +5,7 @@
       
       <div class="avatar-container">
         <div class="avatar-wrapper" (click)="fileInput.click()">
-          <img [src]="user.avatar || 'assets/default-avatar.png'" alt="Profile" class="avatar" />
+          <img [src]="getAvatarUrl()" alt="Profile" class="avatar" />
           <div class="avatar-overlay">
             <mat-icon>camera_alt</mat-icon>
           </div>
@@ -15,30 +15,6 @@
 
       <div class="user-info">
         <h2>{{ user.username }}</h2>
-        
-        <!-- Editable Bio Section -->
-        <div class="bio-section" *ngIf="!editingBio">
-          <p class="user-bio" (click)="startEditingBio()">
-            {{ user.bio || 'Click to add a bio...' }}
-            <mat-icon class="edit-icon">edit</mat-icon>
-          </p>
-        </div>
-
-        <div class="bio-edit-section" *ngIf="editingBio">
-          <mat-form-field appearance="outline" class="bio-field">
-            <textarea matInput 
-                      [(ngModel)]="tempBio" 
-                      placeholder="Tell us about yourself..."
-                      rows="3"
-                      maxlength="200">
-            </textarea>
-            <mat-hint>{{ (tempBio || '').length }}/200</mat-hint>
-          </mat-form-field>
-          <div class="bio-actions">
-            <button mat-button (click)="cancelEditingBio()">Cancel</button>
-            <button mat-raised-button color="primary" (click)="saveBio()">Save</button>
-          </div>
-        </div>
 
         <div class="trust-score">
           <span class="trust-label">Trust Score</span>

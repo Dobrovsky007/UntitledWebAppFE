@@ -9,10 +9,12 @@ export class Auth {
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { username, password }, { responseType: 'text' });
+    // Remove responseType: 'text' to get JSON response
+    return this.http.post(`${this.apiUrl}/login`, { username, password });
   }
 
   register(data: { username: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data, { responseType: 'text' });
+    // Remove responseType: 'text' to get JSON response
+    return this.http.post(`${this.apiUrl}/register`, data);
   }
 }

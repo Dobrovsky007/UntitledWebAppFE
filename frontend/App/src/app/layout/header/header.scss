@@ -108,6 +108,10 @@
     align-items: center;
     height: 100%;
     margin-right: 16px;
+    width: 240px; // Match sidebar width
+    max-width: 240px; // Prevent overflow
+    overflow: hidden; // Hide any overflow
+    z-index: 999; // Lower than sidebar z-index
 
     .app-logo {
       height: 150px;
