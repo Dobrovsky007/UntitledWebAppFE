@@ -241,6 +241,21 @@ mat-card {
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    .loading-sports {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #666;
+      font-style: italic;
+      padding: 16px;
+      text-align: center;
+      justify-content: center;
+      
+      mat-icon {
+        animation: spin 1s linear infinite;
+      }
+    }
   }
 
   .sport-item {
@@ -308,4 +323,9 @@ mat-card {
     width: 100px;
     height: 100px;
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

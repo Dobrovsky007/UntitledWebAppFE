@@ -5,9 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatInputModule } from '@angular/material/input';
-import { MatDividerModule } from '@angular/material/divider'; // Add this import
+import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../shared/services/user.service';
 import { Subscription } from 'rxjs';
 
@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
     MatButtonModule,
     MatMenuModule,
     MatInputModule,
-    MatDividerModule, // Add this to imports array
+    MatDividerModule,
     FormsModule,
     RouterModule
   ],
@@ -34,13 +34,16 @@ export class Header implements OnInit, OnDestroy {
   userName = '';
   private userSubscription: Subscription = new Subscription();
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.userSubscription = this.userService.user$.subscribe(user => {
-      this.userAvatar = user.avatar;
-      this.userName = user.username;
-    });
+    // Subscribe to user changes when UserService has user$ observable
+    // For now, set default values
+    this.userAvatar = 'assets/default-avatar.png';
+    this.userName = 'User';
   }
 
   ngOnDestroy() {
@@ -49,10 +52,21 @@ export class Header implements OnInit, OnDestroy {
 
   toggleSearch() {
     this.showSearch = !this.showSearch;
-    // Optionally focus the input when shown
     setTimeout(() => {
       const el = document.getElementById('search-input');
       if (el) (el as HTMLInputElement).focus();
     }, 0);
+  }
+
+  navigateToLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  navigateToRegister() {
+    this.router.navigate(['/register']);
+  }
+
+  navigateToExploreEvents() {
+    this.router.navigate(['/explore-events']);
   }
 }

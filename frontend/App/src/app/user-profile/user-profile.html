@@ -31,21 +31,40 @@
     <mat-card class="sports-card">
       <div class="sports-header">
         <h3>Preferred Sports & Skills</h3>
-        <button mat-icon-button color="primary" (click)="startAddingSport()" *ngIf="!editingSports">
-          <mat-icon>add</mat-icon>
-        </button>
+        <div class="sports-actions">
+          <button mat-icon-button color="warn" (click)="testBackendConnection()" title="Test backend connection with JWT">
+            <mat-icon>bug_report</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="checkAuthStatus()" title="Check authentication status">
+            <mat-icon>security</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="loadUserProfile()" title="Refresh sports data">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="startAddingSport()" *ngIf="!editingSports">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
       </div>
 
       <!-- Display existing sports -->
       <div class="sports-list" *ngIf="!editingSports">
-        <div class="sport-item" *ngFor="let sport of user.sports; let i = index">
-          <span class="sport-name">{{ sport.name }}</span>
-          <span class="badge" [ngClass]="sport.level.toLowerCase()">{{ sport.level }}</span>
-          <button mat-icon-button (click)="removeSport(i)" class="remove-btn">
-            <mat-icon>close</mat-icon>
-          </button>
+        <div *ngIf="isLoading" class="loading-sports">
+          <mat-icon>refresh</mat-icon>
+          <span>Loading sports...</span>
         </div>
-        <div class="no-sports" *ngIf="user.sports.length === 0">
+        
+        <div *ngIf="!isLoading">
+          <div class="sport-item" *ngFor="let sport of user.sports; let i = index">
+            <span class="sport-name">{{ sport.name }}</span>
+            <span class="badge" [ngClass]="sport.level.toLowerCase()">{{ sport.level }}</span>
+            <button mat-icon-button (click)="removeSport(i)" class="remove-btn">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+        <div class="no-sports" *ngIf="user.sports.length === 0 && !isLoading">
           <p>No sports added yet. Click the + button to add your favorite sports!</p>
         </div>
       </div>

@@ -1,43 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { RouterModule, Router } from '@angular/router';
-import { Auth } from '../auth';
 import { MatIconModule } from '@angular/material/icon';
-import { UserService } from '../../shared/services/user.service';
+import { AuthService, LoginRequest } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
+    MatSnackBarModule,
     MatCardModule,
+    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatFormFieldModule,
     MatCheckboxModule,
-    MatIconModule,
-    RouterModule
+    MatIconModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
 export class Login {
   loginForm: FormGroup;
-  error: string | null = null;
   loading = false;
+  error: string | null = null;
   hidePassword = true;
 
   constructor(
-    private fb: FormBuilder, 
-    private auth: Auth,
+    private fb: FormBuilder,
     private router: Router,
-    private userService: UserService // Add UserService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -50,31 +52,43 @@ export class Login {
     if (this.loginForm.valid) {
       this.loading = true;
       this.error = null;
-      
+
       const { username, password } = this.loginForm.value;
-      
-      this.auth.login(username, password).subscribe({
-        next: (res) => {
-          console.log('Login response:', res);
-          this.loading = false;
-          
-          if (res.token) {
-            localStorage.setItem('authToken', res.token);
-            console.log('Token stored:', res.token.substring(0, 20) + '...');
-            
-            // Skip userService.loadUserProfile() and go directly to profile
-            this.router.navigate(['/app/profile']);
-          } else {
-            console.error('No token in response:', res);
-            this.error = 'No authentication token received';
-          }
+
+      this.authService.login({ username, password }).subscribe({
+        next: (response) => {
+          console.log('✅ Login successful:', response);
+          this.showSuccess('Login successful!');
+          this.router.navigate(['/']);
         },
-        error: (err) => {
-          console.error('Login error:', err);
-          this.error = err.error?.message || 'Login failed';
+        error: (error) => {
+          console.error('❌ Login failed:', error);
+          const errorMessage = error.error?.message || error.error || 'Login failed';
+          this.error = errorMessage;
+          this.showError(errorMessage);
+        },
+        complete: () => {
           this.loading = false;
         }
       });
     }
+  }
+
+  navigateToRegister() {
+    this.router.navigate(['/register']);
+  }
+
+  private showSuccess(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private showError(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
   }
 }

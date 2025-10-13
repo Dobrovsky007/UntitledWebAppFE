@@ -1,58 +1,105 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+
+export interface AddSportRequest {
+  sport: number;
+  skillLevel: number;
+}
+
+export interface RemoveSportRequest {
+  sport: number;
+}
+
+export interface User {
+  username: string;
+  avatar: string;
+  rating: number;
+  sports: any[];
+  verified: boolean;
+  trustScore: number;
+  events: any[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/user';
+  private readonly apiUrl = 'http://localhost:8080/api/user';
   
-  private userSubject = new BehaviorSubject({
+  private userSubject = new BehaviorSubject<User>({
     username: '',
-    email: '',
-    bio: '',
-    avatar: 'assets/default-avatar.png',
-    trustScore: 0,
+    avatar: '',
+    rating: 0,
     sports: [],
+    verified: false,
+    trustScore: 0,
     events: []
   });
-
-  user$ = this.userSubject.asObservable();
+  
+  public user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  getCurrentUser() {
+  /**
+   * Sets the current user
+   */
+  setUser(user: User): void {
+    this.userSubject.next(user);
+  }
+
+  /**
+   * Gets the current user value
+   */
+  getCurrentUser(): User {
     return this.userSubject.value;
   }
 
-  // Load user data from backend
-  loadUserProfile(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/profile`);
+  /**
+   * Loads current user's profile
+   */
+  loadUserProfile(): Observable<User> {
+    console.log('🌐 UserService: Making GET request to', `${this.apiUrl}/profile`);
+    return this.http.get<User>(`${this.apiUrl}/profile`).pipe(
+      tap(user => {
+        console.log('🌐 UserService: Received response from backend:', user);
+        this.setUser(user);
+      })
+    );
   }
 
-  // Set user data (called after login or when fetching profile)
-  setUser(userData: any) {
-    this.userSubject.next({
-      username: userData.username || '',
-      email: userData.email || '',
-      bio: userData.bio || 'Tell us about yourself...',
-      avatar: userData.avatar || 'assets/default-avatar.png',
-      trustScore: userData.trustScore || 0,
-      sports: userData.sports || [],
-      events: userData.events || []
-    });
+  /**
+   * Updates user avatar
+   */
+  updateAvatar(avatarData: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/avatar`, { avatar: avatarData });
   }
 
-  updateAvatar(avatar: string) {
-    const currentUser = this.userSubject.value;
-    this.userSubject.next({
-      ...currentUser,
-      avatar: avatar
-    });
+  /**
+   * Adds a sport to user's profile
+   */
+  addSport(sportId: number, skillLevel: number): Observable<any> {
+    const request: AddSportRequest = {
+      sport: sportId,
+      skillLevel: skillLevel
+    };
+    return this.http.post(`${this.apiUrl}/sport/add`, request);
   }
 
-  updateUser(userData: any) {
-    this.userSubject.next(userData);
+  /**
+   * Removes a sport from user's profile
+   */
+  removeSport(sportId: number): Observable<any> {
+    const request: RemoveSportRequest = {
+      sport: sportId
+    };
+    return this.http.post(`${this.apiUrl}/sport/remove`, request);
+  }
+
+  /**
+   * Joins an event
+   */
+  joinEvent(eventId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/event/${eventId}/join`, {});
   }
 }
