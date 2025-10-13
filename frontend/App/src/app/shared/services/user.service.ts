@@ -11,6 +11,19 @@ export interface RemoveSportRequest {
   sport: number;
 }
 
+export interface Event {
+  id: string;
+  title: string;
+  sport: string;
+  date: string;
+  location: string;
+  image?: string;
+  status: string;
+  description?: string;
+  participants?: number;
+  maxParticipants?: number;
+}
+
 export interface User {
   username: string;
   avatar: string;
@@ -18,7 +31,7 @@ export interface User {
   sports: any[];
   verified: boolean;
   trustScore: number;
-  events: any[];
+  events: Event[];
 }
 
 @Injectable({
@@ -26,6 +39,7 @@ export interface User {
 })
 export class UserService {
   private readonly apiUrl = 'http://localhost:8080/api/user';
+  private readonly eventApiUrl = 'http://localhost:8080/api/event';
   
   private userSubject = new BehaviorSubject<User>({
     username: '',
@@ -101,5 +115,29 @@ export class UserService {
    */
   joinEvent(eventId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/event/${eventId}/join`, {});
+  }
+
+  /**
+   * Loads user's past events
+   */
+  loadPastEvents(): Observable<Event[]> {
+    console.log('🌐 UserService: Making GET request to', `${this.eventApiUrl}/my/past`);
+    return this.http.get<Event[]>(`${this.eventApiUrl}/my/past`).pipe(
+      tap(events => {
+        console.log('🌐 UserService: Received past events from backend:', events);
+      })
+    );
+  }
+
+  /**
+   * Loads user's upcoming events
+   */
+  loadUpcomingEvents(): Observable<Event[]> {
+    console.log('🌐 UserService: Making GET request to', `${this.eventApiUrl}/my/upcoming`);
+    return this.http.get<Event[]>(`${this.eventApiUrl}/my/upcoming`).pipe(
+      tap(events => {
+        console.log('🌐 UserService: Received upcoming events from backend:', events);
+      })
+    );
   }
 }

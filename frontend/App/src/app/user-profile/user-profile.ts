@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { UserService, User } from '../shared/services/user.service';
+import { UserService, User, Event } from '../shared/services/user.service';
 import { AuthService } from '../shared/services/auth.service';
 import { Subscription } from 'rxjs';
 
@@ -43,6 +43,13 @@ export class UserProfile implements OnInit, OnDestroy {
   newSport = { name: '', level: '' };
   isLoading = false;
   
+  // Event data
+  pastEvents: Event[] = [];
+  upcomingEvents: Event[] = [];
+  eventsLoading = false;
+  selectedEventTab: 'upcoming' | 'past' = 'upcoming'; // Default to upcoming
+  maxEventsToShow = 3; // Changed from 4 to 3
+  
   availableSports = [
     'Soccer', 'Basketball', 'Small Football', 'Floorball', 'Ice Hockey', 
     'Volleyball', 'Tennis', 'Golf', 'Table Tennis', 'Badminton', 
@@ -74,6 +81,7 @@ export class UserProfile implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadUserProfile();
+    this.loadUserEvents();
     
     // Subscribe to user service updates in case user data changes elsewhere
     this.userSubscription.add(
@@ -90,9 +98,9 @@ export class UserProfile implements OnInit, OnDestroy {
     this.userSubscription.unsubscribe();
   }
 
-  loadUserProfile() {
+  loadUserProfile(retryCount: number = 0) {
     this.isLoading = true;
-    console.log('🔄 Starting to load user profile from /api/user/profile...');
+    console.log(`🔄 Loading user profile (attempt ${retryCount + 1}) from /api/user/profile...`);
     
     this.userService.loadUserProfile().subscribe({
       next: (userData: any) => {
@@ -112,6 +120,10 @@ export class UserProfile implements OnInit, OnDestroy {
         
         console.log('🎯 Processed user data:', this.user);
         console.log('🏃‍♂️ Processed sports:', this.user.sports);
+        
+        if (retryCount > 0) {
+          this.showSuccess(`Profile loaded successfully after ${retryCount + 1} attempts!`);
+        }
       },
       error: (error) => {
         console.error('❌ Error loading profile from /api/user/profile:', error);
@@ -123,14 +135,19 @@ export class UserProfile implements OnInit, OnDestroy {
           errorBody: error.error
         });
         
+        // Handle 500 errors with retry logic (for ConcurrentModificationException)
+        if (error.status === 500 && retryCount < 3) {
+          console.log(`🔄 Retrying due to backend concurrency issue (attempt ${retryCount + 2}/4)...`);
+          setTimeout(() => {
+            this.loadUserProfile(retryCount + 1);
+          }, 1000 * (retryCount + 1)); // Exponential backoff: 1s, 2s, 3s
+          return;
+        }
+        
         // Show specific error message based on status
         if (error.status === 500) {
-          this.showError('Backend server error. Please check if the /api/user/profile endpoint is working correctly.');
-          console.error('💡 Backend troubleshooting suggestions:');
-          console.error('   1. Check backend server logs for JWT authentication errors');
-          console.error('   2. Verify /api/user/profile endpoint exists and is accessible');
-          console.error('   3. Ensure JWT filter is properly configured for this endpoint');
-          console.error('   4. Check database connection and user data retrieval');
+          this.showError('Backend server error (likely Hibernate concurrency issue). Try refreshing again.');
+          console.error('💡 Backend issue: ConcurrentModificationException in sports collection loading');
         } else if (error.status === 401) {
           this.showError('Authentication failed. Please log in again.');
         } else if (error.status === 403) {
@@ -241,6 +258,91 @@ export class UserProfile implements OnInit, OnDestroy {
       console.log('🔐 No token found');
       this.showError('No authentication token found');
     }
+  }
+
+  /**
+   * Load user's past and upcoming events
+   */
+  loadUserEvents(retryCount: number = 0): void {
+    this.eventsLoading = true;
+    console.log('📅 Loading user events...');
+
+    // Load both past and upcoming events concurrently
+    const pastEventsObs = this.userService.loadPastEvents();
+    const upcomingEventsObs = this.userService.loadUpcomingEvents();
+
+    pastEventsObs.subscribe({
+      next: (events: Event[]) => {
+        console.log('✅ Past events loaded:', events);
+        this.pastEvents = events;
+      },
+      error: (error) => {
+        console.error('❌ Error loading past events:', error);
+        
+        // Retry logic for 500 errors (same concurrency issue)
+        if (error.status === 500 && retryCount < 2) {
+          console.log(`🔄 Retrying past events (attempt ${retryCount + 2}/3)...`);
+          setTimeout(() => {
+            this.loadUserEvents(retryCount + 1);
+          }, 1000 * (retryCount + 1));
+          return;
+        }
+        
+        this.pastEvents = [];
+        if (retryCount >= 2) {
+          this.showError('Failed to load past events after multiple attempts');
+        }
+      }
+    });
+
+    upcomingEventsObs.subscribe({
+      next: (events: Event[]) => {
+        console.log('✅ Upcoming events loaded:', events);
+        this.upcomingEvents = events;
+      },
+      error: (error) => {
+        console.error('❌ Error loading upcoming events:', error);
+        
+        // Retry logic for 500 errors
+        if (error.status === 500 && retryCount < 2) {
+          console.log(`🔄 Retrying upcoming events (attempt ${retryCount + 2}/3)...`);
+          setTimeout(() => {
+            this.loadUserEvents(retryCount + 1);
+          }, 1000 * (retryCount + 1));
+          return;
+        }
+        
+        this.upcomingEvents = [];
+        if (retryCount >= 2) {
+          this.showError('Failed to load upcoming events after multiple attempts');
+        }
+      },
+      complete: () => {
+        this.eventsLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Switch between upcoming and past events
+   */
+  selectEventTab(tab: 'upcoming' | 'past'): void {
+    this.selectedEventTab = tab;
+    console.log(`📅 Switched to ${tab} events tab`);
+  }
+
+  /**
+   * Get all events for display (scrollable)
+   */
+  getDisplayEvents(): Event[] {
+    return this.selectedEventTab === 'upcoming' ? this.upcomingEvents : this.pastEvents;
+  }
+
+  /**
+   * Get count of all events for the selected tab
+   */
+  getTotalEventCount(): number {
+    return this.selectedEventTab === 'upcoming' ? this.upcomingEvents.length : this.pastEvents.length;
   }
 
   /**
