@@ -8,17 +8,25 @@ import { Dashboard } from './dashboard/dashboard';
 import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
+  // Redirect root path based on authentication status
+  { 
+    path: '', 
+    redirectTo: '/auth/login', 
+    pathMatch: 'full' 
+  },
   {
     path: '',
     component: Layout,
+    canActivate: [authGuard], // Protect the entire layout with auth guard
     children: [
-      { path: '', redirectTo: '/explore-events', pathMatch: 'full' },
       { path: 'explore-events', component: ExploreEvents },
-      { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-      { path: 'profile', component: UserProfile, canActivate: [authGuard] }
+      { path: 'dashboard', component: Dashboard },
+      { path: 'profile', component: UserProfile }
     ]
   },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
-  { path: '**', redirectTo: '/explore-events' }
+  { path: 'auth/login', component: Login },
+  { path: 'auth/register', component: Register },
+  { path: 'login', redirectTo: '/auth/login' }, // Redirect old login path
+  { path: 'register', redirectTo: '/auth/register' }, // Redirect old register path
+  { path: '**', redirectTo: '/auth/login' } // Redirect any unknown routes to login
 ];

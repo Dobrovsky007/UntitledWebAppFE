@@ -8,9 +8,14 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
+    // If user is authenticated and accessing root, redirect to dashboard
+    if (state.url === '/') {
+      router.navigate(['/dashboard']);
+      return false;
+    }
     return true;
   } else {
-    router.navigate(['/login']);
+    router.navigate(['/auth/login']);
     return false;
   }
 };

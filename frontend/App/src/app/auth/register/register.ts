@@ -58,12 +58,34 @@ export class Register {
       this.authService.register({ username, email, password }).subscribe({
         next: (response) => {
           this.showSuccess('Registration successful! Please login.');
-          this.router.navigate(['/login']);
+          this.router.navigate(['/auth/login']);
         },
         error: (error) => {
-          const errorMessage = error.error?.message || error.error || 'Registration failed';
+          // Better error handling for registration
+          let errorMessage = 'Registration failed';
+          
+          // Handle HTTP parsing errors specifically
+          if (error.name === 'HttpErrorResponse' && error.message.includes('parsing')) {
+            errorMessage = 'Server returned invalid response. Please try again.';
+          }
+          else if (error.error) {
+            if (typeof error.error === 'string') {
+              errorMessage = error.error;
+            } else if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+          } else if (error.status === 409) {
+            errorMessage = 'Username or email already exists';
+          } else if (error.status === 400) {
+            errorMessage = 'Invalid registration data';
+          } else if (error.status === 0) {
+            errorMessage = 'Cannot connect to server. Please check your connection.';
+          }
+          
           this.error = errorMessage;
-          this.showError(errorMessage); // Use errorMessage instead of this.error
+          this.showError(errorMessage);
         },
         complete: () => {
           this.loading = false;
@@ -73,7 +95,7 @@ export class Register {
   }
 
   navigateToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   private showSuccess(message: string) {

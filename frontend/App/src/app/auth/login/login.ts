@@ -58,7 +58,7 @@ export class Login {
       this.authService.login({ username, password }).subscribe({
         next: (response) => {
           this.showSuccess('Login successful!');
-          this.router.navigate(['/']);
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           const errorMessage = error.error?.message || error.error || 'Login failed';
@@ -73,7 +73,7 @@ export class Login {
   }
 
   navigateToRegister() {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/auth/register']);
   }
 
   private showSuccess(message: string) {

@@ -37,7 +37,9 @@ export class AuthService {
    * Registers a new user
    */
   register(request: RegisterRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, request);
+    return this.http.post(`${this.apiUrl}/register`, request, {
+      responseType: 'text' as 'json' // Handle plain text responses
+    });
   }
 
   /**
@@ -59,7 +61,7 @@ export class AuthService {
   logout(): void {
     this.clearToken();
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   /**
