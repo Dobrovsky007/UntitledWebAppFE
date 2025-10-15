@@ -2,7 +2,7 @@
   position: fixed;
   top: 48px; 
   left: 0;
-  width: 240px; 
+  width: 200px; /* Reduced from 240px to 200px */
   height: calc(100vh - 48px); 
   background: #fff;
   box-shadow: 2px 0 8px rgba(0,0,0,0.04);
@@ -28,8 +28,8 @@
 .nav-list a {
   display: flex;
   align-items: center;
-  gap: 8px; // less space between icon and text
-  padding: 8px 16px; // less padding
+  gap: 6px; /* Reduced from 8px to 6px for tighter spacing */
+  padding: 6px 12px; /* Reduced from 8px 16px for more compact look */
   border-radius: 8px;
   font-size: 13px; // smaller text
   color: #333;
@@ -49,8 +49,8 @@
 }
 
 .nav-icon {
-  font-size: 16px; // smaller icon
-  width: 18px;
+  font-size: 14px; /* Reduced from 16px to 14px */
+  width: 16px; /* Reduced from 18px to 16px */
   text-align: center;
 }
 
