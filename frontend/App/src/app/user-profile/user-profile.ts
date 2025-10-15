@@ -87,7 +87,6 @@ export class UserProfile implements OnInit, OnDestroy {
     this.userSubscription.add(
       this.userService.user$.subscribe((user: User) => {
         if (user.username) {
-          console.log('🔄 User data updated from service:', user);
           this.user = user;
         }
       })
@@ -100,13 +99,9 @@ export class UserProfile implements OnInit, OnDestroy {
 
   loadUserProfile(retryCount: number = 0) {
     this.isLoading = true;
-    console.log(`🔄 Loading user profile (attempt ${retryCount + 1}) from /api/user/profile...`);
     
     this.userService.loadUserProfile().subscribe({
       next: (userData: any) => {
-        console.log('✅ User profile loaded from /api/user/profile:', userData);
-        console.log('📊 Sports data received:', userData.sports);
-        
         // Process the user data and ensure sports are properly formatted
         this.user = {
           username: userData.username || '',
@@ -118,26 +113,13 @@ export class UserProfile implements OnInit, OnDestroy {
           events: userData.events || []
         };
         
-        console.log('🎯 Processed user data:', this.user);
-        console.log('🏃‍♂️ Processed sports:', this.user.sports);
-        
         if (retryCount > 0) {
           this.showSuccess(`Profile loaded successfully after ${retryCount + 1} attempts!`);
         }
       },
       error: (error) => {
-        console.error('❌ Error loading profile from /api/user/profile:', error);
-        console.error('❌ Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          message: error.message,
-          url: error.url,
-          errorBody: error.error
-        });
-        
         // Handle 500 errors with retry logic (for ConcurrentModificationException)
         if (error.status === 500 && retryCount < 3) {
-          console.log(`🔄 Retrying due to backend concurrency issue (attempt ${retryCount + 2}/4)...`);
           setTimeout(() => {
             this.loadUserProfile(retryCount + 1);
           }, 1000 * (retryCount + 1)); // Exponential backoff: 1s, 2s, 3s
@@ -147,7 +129,6 @@ export class UserProfile implements OnInit, OnDestroy {
         // Show specific error message based on status
         if (error.status === 500) {
           this.showError('Backend server error (likely Hibernate concurrency issue). Try refreshing again.');
-          console.error('💡 Backend issue: ConcurrentModificationException in sports collection loading');
         } else if (error.status === 401) {
           this.showError('Authentication failed. Please log in again.');
         } else if (error.status === 403) {
@@ -177,43 +158,12 @@ export class UserProfile implements OnInit, OnDestroy {
    * Test method to diagnose backend connection issues with JWT authentication
    */
   testBackendConnection(): void {
-    console.log('🔧 Testing backend connection with JWT authentication...');
-    
     // Use the user service to make an authenticated request
     this.userService.loadUserProfile().subscribe({
       next: (response: any) => {
-        console.log('✅ Backend test with JWT - Success!', response);
-        console.log('✅ Backend test - User data received:', response);
-        console.log('✅ Backend test - Sports data:', response.sports);
-        this.showSuccess('Backend connection test with JWT successful - check console for details');
+        this.showSuccess('Backend connection test with JWT successful');
       },
       error: (error: any) => {
-        console.error('❌ Backend test with JWT - Error:', error);
-        console.error('❌ Backend test - Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          message: error.message,
-          url: error.url,
-          errorBody: error.error,
-          headers: error.headers
-        });
-        
-        // Try to get more specific error information
-        if (error.error) {
-          console.error('❌ Backend test - Server response body:', error.error);
-          
-          // If it's a string response, it might contain useful error info
-          if (typeof error.error === 'string') {
-            console.error('❌ Backend test - Server error message:', error.error);
-          }
-          
-          // If it's an object, log its properties
-          if (typeof error.error === 'object') {
-            console.error('❌ Backend test - Error object keys:', Object.keys(error.error));
-            console.error('❌ Backend test - Error object values:', error.error);
-          }
-        }
-        
         this.showError(`Backend test with JWT failed: ${error.status} ${error.statusText}`);
       }
     });
@@ -223,39 +173,27 @@ export class UserProfile implements OnInit, OnDestroy {
    * Check current authentication status and JWT token validity
    */
   checkAuthStatus(): void {
-    console.log('🔐 Checking authentication status...');
-    
     // Check if user is logged in
     const isLoggedIn = this.authService.isAuthenticated();
-    console.log('🔐 Is authenticated:', isLoggedIn);
     
     // Check token
     const token = this.authService.getToken();
-    console.log('🔐 Token exists:', !!token);
     
     if (token) {
-      console.log('🔐 Token (first 50 chars):', token.substring(0, 50) + '...');
-      
       // Try to decode token
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('🔐 Token payload:', payload);
-        console.log('🔐 Token subject (user):', payload.sub);
-        console.log('🔐 Token issued at:', new Date(payload.iat * 1000));
-        console.log('🔐 Token expires at:', new Date(payload.exp * 1000));
-        console.log('🔐 Token is expired:', Date.now() > payload.exp * 1000);
+        const isExpired = Date.now() > payload.exp * 1000;
         
-        // Check current username from AuthService
-        const currentUsername = this.authService.getCurrentUsername();
-        console.log('🔐 Current username from AuthService:', currentUsername);
-        
-        this.showSuccess('Authentication check completed - see console for details');
+        if (isExpired) {
+          this.showError('Authentication token has expired');
+        } else {
+          this.showSuccess('Authentication check completed - token is valid');
+        }
       } catch (error) {
-        console.error('🔐 Error decoding token:', error);
         this.showError('Token decode error - invalid JWT format');
       }
     } else {
-      console.log('🔐 No token found');
       this.showError('No authentication token found');
     }
   }
@@ -265,7 +203,6 @@ export class UserProfile implements OnInit, OnDestroy {
    */
   loadUserEvents(retryCount: number = 0): void {
     this.eventsLoading = true;
-    console.log('📅 Loading user events...');
 
     // Load both past and upcoming events concurrently
     const pastEventsObs = this.userService.loadPastEvents();

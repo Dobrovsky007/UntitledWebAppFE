@@ -4,6 +4,7 @@ import { Login } from './auth/login/login';
 import { Register } from './auth/register/register';
 import { UserProfile } from './user-profile/user-profile';
 import { ExploreEvents } from './events/explore-events/explore-events';
+import { Dashboard } from './dashboard/dashboard';
 import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
@@ -13,6 +14,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: '/explore-events', pathMatch: 'full' },
       { path: 'explore-events', component: ExploreEvents },
+      { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
       { path: 'profile', component: UserProfile, canActivate: [authGuard] }
     ]
   },
