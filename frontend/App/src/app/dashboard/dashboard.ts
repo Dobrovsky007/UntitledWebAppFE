@@ -62,7 +62,7 @@ export class Dashboard implements OnInit {
   loadEvents(): void {
     this.isLoading = true;
 
-    // Create individual API calls with error handling
+    // Only load hosted events for now (attended endpoints don't exist yet)
     const hostedUpcoming$ = this.http.get<Event[]>(`${this.apiUrl}/hosted/upcoming`)
       .pipe(catchError(error => {
         return of([]);
@@ -72,35 +72,19 @@ export class Dashboard implements OnInit {
       .pipe(catchError(error => {
         return of([]);
       }));
-    
-    const attendedUpcoming$ = this.http.get<Event[]>(`${this.apiUrl}/attended/upcoming`)
-      .pipe(catchError(error => {
-        return of([]);
-      }));
-    
-    const attendedPast$ = this.http.get<Event[]>(`${this.apiUrl}/attended/past`)
-      .pipe(catchError(error => {
-        return of([]);
-      }));
 
     forkJoin({
       hostedUpcoming: hostedUpcoming$,
-      hostedPast: hostedPast$,
-      attendedUpcoming: attendedUpcoming$,
-      attendedPast: attendedPast$
+      hostedPast: hostedPast$
     }).subscribe({
       next: (results) => {
-        // Combine hosted and attended events
-        this.events.upcoming = [
-          ...results.hostedUpcoming.map(event => ({ ...event, type: 'hosted' as const })),
-          ...results.attendedUpcoming.map(event => ({ ...event, type: 'attended' as const }))
-        ];
+        // Upcoming tab: Show hosted upcoming events for now
+        this.events.upcoming = results.hostedUpcoming.map(event => ({ ...event, type: 'hosted' as const }));
         
-        this.events.past = [
-          ...results.hostedPast.map(event => ({ ...event, type: 'hosted' as const })),
-          ...results.attendedPast.map(event => ({ ...event, type: 'attended' as const }))
-        ];
+        // Past tab: Show hosted past events for now  
+        this.events.past = results.hostedPast.map(event => ({ ...event, type: 'hosted' as const }));
         
+        // Hosted tab: All hosted events (upcoming + past)
         this.events.hosted = [
           ...results.hostedUpcoming,
           ...results.hostedPast

@@ -73,10 +73,8 @@ export class UserService {
    * Loads current user's profile
    */
   loadUserProfile(): Observable<User> {
-    console.log('🌐 UserService: Making GET request to', `${this.apiUrl}/profile`);
     return this.http.get<User>(`${this.apiUrl}/profile`).pipe(
       tap(user => {
-        console.log('🌐 UserService: Received response from backend:', user);
         this.setUser(user);
       })
     );
@@ -121,23 +119,13 @@ export class UserService {
    * Loads user's past events
    */
   loadPastEvents(): Observable<Event[]> {
-    console.log('🌐 UserService: Making GET request to', `${this.eventApiUrl}/hosted/past`);
-    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/past`).pipe(
-      tap(events => {
-        console.log('🌐 UserService: Received past hosted events from backend:', events);
-      })
-    );
+    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/past`);
   }
 
   /**
    * Loads user's upcoming events
    */
   loadUpcomingEvents(): Observable<Event[]> {
-    console.log('🌐 UserService: Making GET request to', `${this.eventApiUrl}/hosted/upcoming`);
-    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/upcoming`).pipe(
-      tap(events => {
-        console.log('🌐 UserService: Received upcoming hosted events from backend:', events);
-      })
-    );
+    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/upcoming`);
   }
 }

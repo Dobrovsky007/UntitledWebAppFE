@@ -57,12 +57,10 @@ export class Login {
 
       this.authService.login({ username, password }).subscribe({
         next: (response) => {
-          console.log('✅ Login successful:', response);
           this.showSuccess('Login successful!');
           this.router.navigate(['/']);
         },
         error: (error) => {
-          console.error('❌ Login failed:', error);
           const errorMessage = error.error?.message || error.error || 'Login failed';
           this.error = errorMessage;
           this.showError(errorMessage);

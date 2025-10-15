@@ -210,15 +210,11 @@ export class UserProfile implements OnInit, OnDestroy {
 
     pastEventsObs.subscribe({
       next: (events: Event[]) => {
-        console.log('✅ Past events loaded:', events);
         this.pastEvents = events;
       },
       error: (error) => {
-        console.error('❌ Error loading past events:', error);
-        
         // Retry logic for 500 errors (same concurrency issue)
         if (error.status === 500 && retryCount < 2) {
-          console.log(`🔄 Retrying past events (attempt ${retryCount + 2}/3)...`);
           setTimeout(() => {
             this.loadUserEvents(retryCount + 1);
           }, 1000 * (retryCount + 1));
@@ -234,15 +230,11 @@ export class UserProfile implements OnInit, OnDestroy {
 
     upcomingEventsObs.subscribe({
       next: (events: Event[]) => {
-        console.log('✅ Upcoming events loaded:', events);
         this.upcomingEvents = events;
       },
       error: (error) => {
-        console.error('❌ Error loading upcoming events:', error);
-        
         // Retry logic for 500 errors
         if (error.status === 500 && retryCount < 2) {
-          console.log(`🔄 Retrying upcoming events (attempt ${retryCount + 2}/3)...`);
           setTimeout(() => {
             this.loadUserEvents(retryCount + 1);
           }, 1000 * (retryCount + 1));
@@ -265,7 +257,6 @@ export class UserProfile implements OnInit, OnDestroy {
    */
   selectEventTab(tab: 'upcoming' | 'past'): void {
     this.selectedEventTab = tab;
-    console.log(`📅 Switched to ${tab} events tab`);
   }
 
   /**
@@ -287,8 +278,6 @@ export class UserProfile implements OnInit, OnDestroy {
    */
   private processSportsData(sportsData: any[]): any[] {
     return sportsData.map(sport => {
-      console.log('🔄 Processing sport item:', sport);
-      
       // Handle different possible formats from backend
       let sportName = sport.name;
       let sportLevel = sport.level;
@@ -332,7 +321,6 @@ export class UserProfile implements OnInit, OnDestroy {
             this.showSuccess('Avatar updated successfully!');
           },
           error: (error) => {
-            console.error('❌ Error updating avatar:', error);
             this.showError('Failed to update avatar');
           }
         });
@@ -360,14 +348,8 @@ export class UserProfile implements OnInit, OnDestroy {
     const sportId = this.getSportId(this.newSport.name);
     const levelId = this.getLevelId(this.newSport.level);
 
-    console.log('🚀 Starting addSport process:');
-    console.log('  📝 Selected sport:', this.newSport.name, '-> ID:', sportId);
-    console.log('  📝 Selected level:', this.newSport.level, '-> ID:', levelId);
-    console.log('  📝 Request payload:', { sport: sportId, skillLevel: levelId });
-
     this.userService.addSport(sportId, levelId).subscribe({
       next: (response) => {
-        console.log('✅ Sport added successfully to backend:', response);
         this.showSuccess('Sport added successfully!');
         
         // Clear form
@@ -391,25 +373,14 @@ export class UserProfile implements OnInit, OnDestroy {
         // Try to reload full profile but don't surface errors to the user if it fails
         this.userService.loadUserProfile().subscribe({
           next: (userData: any) => {
-            console.log('✅ Profile reloaded after addSport:', userData);
             this.user = userData;
           },
           error: (err) => {
-            // Keep optimistic update and log the backend error for debugging
-            console.warn('⚠️ Profile reload failed after addSport; keeping optimistic UI update', err);
+            // Keep optimistic update and ignore backend error
           }
         });
       },
       error: (error) => {
-        console.error('❌ addSport failed completely:', error);
-        console.error('❌ Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          message: error.message,
-          url: error.url,
-          errorBody: error.error
-        });
-        
         // Provide specific error messages based on status code
         let errorMessage = 'Failed to add sport';
         if (error.status === 500) {
@@ -460,8 +431,6 @@ export class UserProfile implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Removing sport:', { sportId, sportName: sport.name });
-
     // Optimistically remove from UI immediately
     const originalSports = [...this.user.sports];
     this.user.sports = this.user.sports.filter((_, i) => i !== index);
@@ -469,7 +438,6 @@ export class UserProfile implements OnInit, OnDestroy {
 
     this.userService.removeSport(sportId).subscribe({
       next: (response) => {
-        console.log('✅ Sport removed successfully:', response);
         this.showSuccess('Sport removed successfully!');
         
         // Try to reload full profile but don't surface errors to the user if it fails
@@ -478,13 +446,11 @@ export class UserProfile implements OnInit, OnDestroy {
             this.user = userData;
           },
           error: (err) => {
-            // Keep optimistic update and log the backend error for debugging
-            console.warn('⚠️ Profile reload failed after removeSport; keeping optimistic UI update', err);
+            // Keep optimistic update and ignore backend error
           }
         });
       },
       error: (error) => {
-        console.error('❌ Error removing sport:', error);
         // Revert optimistic update on error
         this.user.sports = originalSports;
         this.userService.setUser(this.user);

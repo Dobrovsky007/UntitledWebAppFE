@@ -85,7 +85,6 @@ export class ExploreEvents implements OnInit {
   }
 
   joinEvent(eventId: number) {
-    console.log('Joining event:', eventId);
     // TODO: Implement join event logic
   }
 }

@@ -57,12 +57,10 @@ export class Register {
 
       this.authService.register({ username, email, password }).subscribe({
         next: (response) => {
-          console.log('✅ Registration successful:', response);
           this.showSuccess('Registration successful! Please login.');
           this.router.navigate(['/login']);
         },
         error: (error) => {
-          console.error('❌ Registration failed:', error);
           const errorMessage = error.error?.message || error.error || 'Registration failed';
           this.error = errorMessage;
           this.showError(errorMessage); // Use errorMessage instead of this.error
