@@ -10,7 +10,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 12px;
-  height: 50px;
+  height: 1vw;
   min-height: 48px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
@@ -28,12 +28,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    .search-field {
-      width: 250px;
-      min-width: 0;
-      transition: width 0.2s, opacity 0.2s;
-      font-size: 0.85rem;
 
       .mat-mdc-form-field-flex {
         border-radius: 12px !important;
@@ -59,31 +53,6 @@
         line-height: 18px !important;
       }
     }
-
-    .custom-search-field {
-      display: flex;
-      align-items: center;
-      background: #fff;
-      border-radius: 14px;
-      border: 1px solid #bbb;
-      padding: 0 4px 0 10px;
-      height: 28px;
-      width: 250px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-
-      input {
-        border: none;
-        outline: none;
-        background: transparent;
-        font-size: 0.95rem;
-        height: 24px;
-        width: 100%;
-        padding: 0;
-        margin-right: 4px;
-        color: #222;
-      }
-    }
-  }
 
   .right-section {
     display: flex;

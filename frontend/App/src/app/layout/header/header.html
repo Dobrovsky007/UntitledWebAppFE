@@ -2,23 +2,8 @@
   <div class="logo-container">
     <img src="assets/logo.svg" alt="App Logo" class="app-logo" />
   </div>
-  <div class="center-section">
-    <ng-container *ngIf="showSearch">
-      <div class="custom-search-field">
-        <input
-          id="search-input"
-          type="text"
-          [(ngModel)]="searchQuery"
-          placeholder="Search events, players..."
-        />
-      </div>
-    </ng-container>
-  </div>
-
+  
   <div class="right-section">
-    <button mat-icon-button (click)="toggleSearch()">
-      <mat-icon>search</mat-icon>
-    </button>
     <button mat-icon-button class="avatar-button" [matMenuTriggerFor]="menu">
       <img class="avatar" [src]="userAvatar" alt="User" />
     </button>
