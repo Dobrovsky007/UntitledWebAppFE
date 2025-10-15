@@ -1,0 +1,34 @@
+<!-- Common Sidebar and Header Structure -->
+<mat-sidenav-container class="layout-container">
+  <!-- Sidebar -->
+  <mat-sidenav mode="side" opened>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/events">Explore Events</a>
+      <a mat-list-item routerLink="/my-events">My Events</a>
+      <a mat-list-item routerLink="/create">Create Event</a>
+      <a mat-list-item routerLink="/profile">Profile</a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content>
+    <!-- Header -->
+    <mat-toolbar color="primary" class="toolbar">
+      <span class="title">Create Event</span> <!-- Change title as needed -->
+      <span class="spacer"></span>
+      <mat-form-field class="search">
+        <input matInput placeholder="Search events" />
+      </mat-form-field>
+      <button mat-icon-button>
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <!-- Your page-specific content goes here -->
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Company</span> · <span>Support</span> · <span>Legal</span>
+    </footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>
