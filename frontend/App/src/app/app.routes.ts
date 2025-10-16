@@ -6,6 +6,7 @@ import { UserProfile } from './user-profile/user-profile';
 import { ExploreEvents } from './events/explore-events/explore-events';
 import { Dashboard } from './dashboard/dashboard';
 import { authGuard } from './shared/guards/auth.guard';
+import { CreateEvents } from './createEvent/create-events';
 
 export const routes: Routes = [
   // Redirect root path based on authentication status
@@ -21,7 +22,8 @@ export const routes: Routes = [
     children: [
       { path: 'explore-events', component: ExploreEvents },
       { path: 'dashboard', component: Dashboard },
-      { path: 'profile', component: UserProfile }
+      { path: 'profile', component: UserProfile },
+      { path: 'create-events', component: CreateEvents },
     ]
   },
   { path: 'auth/login', component: Login },
