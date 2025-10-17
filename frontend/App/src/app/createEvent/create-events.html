@@ -61,6 +61,7 @@
           </mat-form-field>
 
           <!-- Latitude & Longitude -->
+           <!--
           <div class="latlon-row">
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>Latitude</mat-label>
@@ -71,6 +72,15 @@
               <mat-label>Longitude</mat-label>
               <input matInput type="number" formControlName="longitude" />
             </mat-form-field>
+          </div>
+          -->
+
+            <!-- Map Location Picker -->
+          <div class="map-section">
+            <div id="map" class="map-container"></div>
+              <p class="text-sm text-gray-600 mt-2">
+                Click on the map to set event location.
+              </p>
           </div>
 
           <!-- Submit -->

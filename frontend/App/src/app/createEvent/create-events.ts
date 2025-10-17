@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
@@ -41,6 +46,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 })
 export class CreateEvents implements OnInit {
   eventForm!: FormGroup;
+  map!: L.Map;
+  marker!: L.Marker;
 
   sports: string[] = [
     'Soccer', 'Basketball', 'Futsal', 'Florball', 'Ice Hockey',
@@ -49,9 +56,8 @@ export class CreateEvents implements OnInit {
     'Frisbee', 'Hiking', 'Padel', 'Foot Volley', 'Bowling', 'Darts'
   ];
 
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit() {
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private snackBar: MatSnackBar) {
+    
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
       sport: [0, Validators.required],
@@ -60,16 +66,75 @@ export class CreateEvents implements OnInit {
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       capacity: [0, [Validators.required, Validators.min(1)]],
-      latitude: [0],
-      longitude: [0],
+      latitude: [null],
+      longitude: [null],
+      
+    });
+  }
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+    // Initialize map
+    this.map = L.map('map').setView([48.7164, 21.2611], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    // Listen for click events
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+
+      // If marker exists, update its position
+      if (this.marker) {
+        this.marker.setLatLng([lat, lng]);
+      } else {
+        // Otherwise create a new marker
+        this.marker = L.marker([lat, lng]).addTo(this.map);
+      }
+
+      // Update form fields
+      this.eventForm.patchValue({
+        latitude: lat,
+        longitude: lng
+      });
     });
   }
 
   onSubmit() {
     if (this.eventForm.valid) {
-      console.log('Event JSON:', JSON.stringify(this.eventForm.value, null, 2));
+      this.http.post(
+        'http://localhost:5000/create',
+        this.eventForm.value,
+        { headers: { 'Content-Type': 'application/json' } }
+      ).subscribe({
+        next: () => {
+          this.showSuccess('Event created successfully!');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          const errorMessage = error.error?.message || error.error || 'Event creation failed';
+          this.showError(errorMessage);
+        }
+      });
     } else {
       this.eventForm.markAllAsTouched();
+      this.showError('Please fill out all required fields.');
     }
+  }
+
+  private showSuccess(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private showError(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
   }
 }

@@ -29,5 +29,6 @@ export const routes: Routes = [
   { path: 'auth/register', component: Register },
   { path: 'login', redirectTo: '/auth/login' }, // Redirect old login path
   { path: 'register', redirectTo: '/auth/register' }, // Redirect old register path
-  { path: '**', redirectTo: '/auth/login' } // Redirect any unknown routes to login
+  { path: '**', redirectTo: '/auth/login' }, // Redirect any unknown routes to login
+  { path: 'create', redirectTo: '/auth/events/login' },
 ];
