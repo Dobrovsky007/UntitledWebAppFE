@@ -9,7 +9,6 @@ import { authGuard } from './shared/guards/auth.guard';
 import { CreateEvents } from './createEvent/create-events';
 
 export const routes: Routes = [
-  // Redirect root path based on authentication status
   { 
     path: '', 
     redirectTo: '/auth/login', 
