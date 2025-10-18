@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventified-frontend
+  labels:
+    app: eventified-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventified-frontend
+  template:
+    metadata:
+      labels:
+        app: eventified-frontend
+    spec:
+      containers:
+        - name: eventified-frontend
+          image: __DOCKER_IMAGE__
+          envFrom:
+            - configMapRef:
+                name: eventified-backend-config
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: regcred-frontend
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventified-frontend-service
+spec:
+  selector:
+    app: eventified-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

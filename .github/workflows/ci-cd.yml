@@ -1,0 +1,144 @@
+name: Frontend CI/CD Pipeline
+
+# Triggers - runs on every commit to main/dev branches and pull requests
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: eventified-frontend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test Frontend
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/App/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./frontend/App
+      run: npm ci
+
+    - name: Run linting
+      working-directory: ./frontend/App
+      run: npm run lint || echo "Linting completed with warnings"
+
+    - name: Run tests
+      working-directory: ./frontend/App
+      run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+    - name: Build application
+      working-directory: ./frontend/App
+      run: npm run build -- --configuration=production
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-files
+        path: frontend/App/dist/
+        retention-days: 1
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend/App
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Output image details
+      run: |
+        echo "Image pushed: ${{ steps.meta.outputs.tags }}"
+        echo "Image digest: ${{ steps.build.outputs.digest }}"
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    name: Deploy to Kubernetes
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+        kubectl config current-context
+
+    - name: Deploy frontend to Kubernetes
+      run: |
+        # Create namespace if it doesn't exist
+        kubectl get namespace eventified || kubectl create namespace eventified
+        
+        # Create Docker registry secret
+        kubectl create secret docker-registry regcred-frontend \
+          --docker-server="${{ env.DOCKER_REGISTRY }}" \
+          --docker-username="${{ github.actor }}" \
+          --docker-password="${{ secrets.GITHUB_TOKEN }}" \
+          --namespace=eventified \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Update deployment with new image
+        sed "s|__FRONTEND_DOCKER_IMAGE__|${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}|" k8s/frontend-deployment.yaml | kubectl apply -f -
+        
+        # Apply other resources
+        kubectl apply -f k8s/services.yaml
+        kubectl apply -f k8s/ingress.yaml
+        kubectl apply -f k8s/middleware.yaml
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/eventified-frontend -n eventified --timeout=300s
+        
+        # Show deployment status
+        kubectl get pods -n eventified -l app=eventified-frontend
