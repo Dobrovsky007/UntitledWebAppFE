@@ -1,34 +1,94 @@
-<!-- Common Sidebar and Header Structure -->
 <mat-sidenav-container class="layout-container">
-  <!-- Sidebar -->
-  <mat-sidenav mode="side" opened>
-    <mat-nav-list>
-      <a mat-list-item routerLink="/events">Explore Events</a>
-      <a mat-list-item routerLink="/my-events">My Events</a>
-      <a mat-list-item routerLink="/create">Create Event</a>
-      <a mat-list-item routerLink="/profile">Profile</a>
-    </mat-nav-list>
-  </mat-sidenav>
-
-  <!-- Main Content -->
   <mat-sidenav-content>
-    <!-- Header -->
-    <mat-toolbar color="primary" class="toolbar">
-      <span class="title">Create Event</span> <!-- Change title as needed -->
-      <span class="spacer"></span>
-      <mat-form-field class="search">
-        <input matInput placeholder="Search events" />
-      </mat-form-field>
-      <button mat-icon-button>
-        <mat-icon>account_circle</mat-icon>
-      </button>
-    </mat-toolbar>
+    <!-- Main Form Section -->
+    <div class="form-container">
+      <mat-card class="form-card">
+        <h2 class="form-title">Create New Event</h2>
 
-    <!-- Your page-specific content goes here -->
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
 
-    <!-- Footer -->
-    <footer class="footer">
-      <span>Company</span> · <span>Support</span> · <span>Legal</span>
-    </footer>
+          <!-- Title -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Enter event title" />
+          </mat-form-field>
+
+          <!-- Sport -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Sport</mat-label>
+            <mat-select formControlName="sport">
+              <mat-option *ngFor="let s of sports; index as i" [value]="i">{{ s }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Address -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address" placeholder="Enter location" />
+          </mat-form-field>
+
+          <!-- Skill Level -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Skill Level</mat-label>
+            <mat-select formControlName="skillLevel">
+              <mat-option [value]="0">Beginner</mat-option>
+              <mat-option [value]="1">Intermediate</mat-option>
+              <mat-option [value]="2">Advanced</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Start and End Time -->
+          <div class="time-row">
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>Start Time</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startTime" />
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>End Time</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endTime" />
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <!-- Capacity -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Capacity</mat-label>
+            <input matInput type="number" formControlName="capacity" placeholder="Enter max participants" />
+          </mat-form-field>
+
+          <!-- Latitude & Longitude -->
+           <!--
+          <div class="latlon-row">
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>Latitude</mat-label>
+              <input matInput type="number" formControlName="latitude" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>Longitude</mat-label>
+              <input matInput type="number" formControlName="longitude" />
+            </mat-form-field>
+          </div>
+          -->
+
+            <!-- Map Location Picker -->
+          <div class="map-section">
+            <div id="map" class="map-container"></div>
+              <p class="text-sm text-gray-600 mt-2">
+                Click on the map to set event location.
+              </p>
+          </div>
+
+          <!-- Submit -->
+          <button mat-raised-button color="primary" type="submit" class="submit-btn">
+            Submit
+          </button>
+        </form>
+      </mat-card>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

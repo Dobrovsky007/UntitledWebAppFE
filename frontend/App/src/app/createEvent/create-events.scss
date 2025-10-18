@@ -1,57 +1,107 @@
-/* src/app/events/explore-events/explore-events.component.scss */
 .layout-container {
-    height: 100vh;
+  position:fixed;
+  top:0;
+  width: 88%;
+  height: 100vh;
+  background: linear-gradient(180deg, #f0f4f8, #e8ebee);
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+  width: 100%;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 550px; /* slightly smaller */
+  padding: 32px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-title {
+  font-size: 5fr;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 2fr;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.rounded-field ::ng-deep .mat-mdc-form-field-outline {
+  border-radius: 10px !important;
+}
+
+.time-row,
+.latlon-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.half {
+  flex: 1;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  align-self: center;
+  width: 180px;
+  border-radius: 25px;
+}
+
+.footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 12px;
+  color: gray;
+  margin-top: 32px;
+}
+
+.map-section {
+  margin-top: 1rem;
+}
+
+.map-container {
+  height: 300px;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .map-container {
+    height: 250px;
   }
-  
-  .toolbar {
-    display: flex;
-    align-items: center;
-  }
-  
-  .title {
-    font-size: 20px;
-    font-weight: 600;
-  }
-  
-  .spacer {
-    flex: 1;
-  }
-  
-  .search {
-    margin-right: 16px;
-  }
-  
-  .filters {
-    display: flex;
-    gap: 16px;
-    padding: 16px;
-    flex-wrap: wrap;
-  }
-  
-  .event-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    padding: 16px;
-  }
-  
-  .event-card img {
-    height: 160px;
-    object-fit: cover;
-  }
-  
-  .create-card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background: #f5f5f5;
-  }
-  
-  .footer {
-    text-align: center;
-    padding: 16px;
-    font-size: 12px;
-    color: gray;
-  }
-  
+}
