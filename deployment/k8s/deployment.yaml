@@ -17,9 +17,6 @@ spec:
       containers:
         - name: eventified-frontend
           image: __DOCKER_IMAGE__
-          envFrom:
-            - configMapRef:
-                name: eventified-backend-config
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
