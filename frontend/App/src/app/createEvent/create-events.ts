@@ -19,6 +19,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { NgZone } from '@angular/core';
+
 
 @Component({
   selector: 'app-create-events',
@@ -56,7 +58,11 @@ export class CreateEvents implements OnInit {
     'Frisbee', 'Hiking', 'Padel', 'Foot Volley', 'Bowling', 'Darts'
   ];
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private snackBar: MatSnackBar) {
+  constructor(private fb: FormBuilder, 
+    private http: HttpClient, 
+    private router: Router, 
+    private snackBar: MatSnackBar, 
+    private ngZone: NgZone) {
     
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
@@ -105,13 +111,18 @@ export class CreateEvents implements OnInit {
   onSubmit() {
     if (this.eventForm.valid) {
       this.http.post(
-        'http://localhost:5000/create',
+        'http://localhost:8080/api/event/create',
         this.eventForm.value,
         { headers: { 'Content-Type': 'application/json' } }
       ).subscribe({
         next: () => {
           this.showSuccess('Event created successfully!');
-          this.router.navigate(['/dashboard']);
+          this.ngZone.run(() => {
+            console.log('Navigating to /dashboard');
+            this.router.navigate(['/dashboard']).then(success => {
+              console.log('Navigation success:', success);
+        });
+      });
         },
         error: (error) => {
           const errorMessage = error.error?.message || error.error || 'Event creation failed';
