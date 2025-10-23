@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 // Angular Material Modules
@@ -20,6 +19,7 @@ import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NgZone } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -41,7 +41,7 @@ import { NgZone } from '@angular/core';
     MatSidenavModule,
   ],
   providers: [
-    provideNativeDateAdapter() // 👈 THIS is critical for Angular 18+ / 20+
+    provideNativeDateAdapter()
   ],
   templateUrl: './create-events.html',
   styleUrls: ['./create-events.scss'],
@@ -108,32 +108,47 @@ export class CreateEvents implements OnInit {
     });
   }
 
+  
   onSubmit() {
-    if (this.eventForm.valid) {
-      this.http.post(
-        'http://localhost:8080/api/event/create',
-        this.eventForm.value,
-        { headers: { 'Content-Type': 'application/json' } }
-      ).subscribe({
-        next: () => {
-          this.showSuccess('Event created successfully!');
-          this.ngZone.run(() => {
-            console.log('Navigating to /dashboard');
-            this.router.navigate(['/dashboard']).then(success => {
-              console.log('Navigation success:', success);
+  if (this.eventForm.valid) {
+    const formValue = this.eventForm.value;
+
+    // ✅ Convert start and end times to proper ISO timestamps
+    const payload = {
+      ...formValue,
+      startTime: new Date(formValue.startTime).toISOString(),
+      endTime: new Date(formValue.endTime).toISOString(),
+    };
+
+    console.log('Sending payload:', payload);
+
+    this.http.post(
+      'http://localhost:8080/api/event/create',
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    ).subscribe({
+      next: () => {
+        this.showSuccess('Event created successfully!');
+        console.log('Navigating to dashboard directly...');
+        this.router.navigate(['/dashboard']).then(success => {
+          console.log('Navigation success:', success);
+        }).catch(err => {
+          console.error('Navigation error:', err);
         });
-      });
-        },
-        error: (error) => {
-          const errorMessage = error.error?.message || error.error || 'Event creation failed';
-          this.showError(errorMessage);
-        }
-      });
-    } else {
-      this.eventForm.markAllAsTouched();
-      this.showError('Please fill out all required fields.');
-    }
+      },
+      error: (error) => {
+        const errorMessage =
+          error.error?.message || error.error || 'Event creation failed';
+        this.showError(errorMessage);
+        console.error('Error while creating event:', error);
+      }
+    });
+  } else {
+    this.eventForm.markAllAsTouched();
+    this.showError('Please fill out all required fields.');
   }
+}
+
 
   private showSuccess(message: string) {
     this.snackBar.open(message, 'Close', {
