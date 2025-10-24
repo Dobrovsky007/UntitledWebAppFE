@@ -7,3 +7,14 @@ spec:
   stripPrefix:
     prefixes:
       - "/eventified"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-prefix-eventified-api
+  namespace: eventified
+spec:
+  stripPrefix:
+    prefixes:
+      - "/eventified/api"
