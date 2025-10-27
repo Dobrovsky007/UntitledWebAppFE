@@ -19,7 +19,7 @@ import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NgZone } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -39,6 +39,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatNativeDateModule,
     MatToolbarModule,
     MatSidenavModule,
+    MatSnackBarModule,
   ],
   providers: [
     provideNativeDateAdapter()
@@ -81,6 +82,14 @@ export class CreateEvents implements OnInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
+    // Fix Leaflet marker icons
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    });
+
     // Initialize map
     this.map = L.map('map').setView([48.7164, 21.2611], 13);
 
@@ -110,44 +119,61 @@ export class CreateEvents implements OnInit {
 
   
   onSubmit() {
-  if (this.eventForm.valid) {
-    const formValue = this.eventForm.value;
+    if (this.eventForm.valid) {
+      const formValue = this.eventForm.value;
 
-    // ✅ Convert start and end times to proper ISO timestamps
-    const payload = {
-      ...formValue,
-      startTime: new Date(formValue.startTime).toISOString(),
-      endTime: new Date(formValue.endTime).toISOString(),
-    };
+      // ✅ Convert start and end times to proper ISO timestamps
+      const payload = {
+        ...formValue,
+        startTime: new Date(formValue.startTime).toISOString(),
+        endTime: new Date(formValue.endTime).toISOString(),
+      };
 
-    console.log('Sending payload:', payload);
-
-    this.http.post(
-      'http://localhost:8080/api/event/create',
-      payload,
-      { headers: { 'Content-Type': 'application/json' } }
-    ).subscribe({
-      next: () => {
-        this.showSuccess('Event created successfully!');
-        console.log('Navigating to dashboard directly...');
-        this.router.navigate(['/dashboard']).then(success => {
-          console.log('Navigation success:', success);
-        }).catch(err => {
-          console.error('Navigation error:', err);
-        });
-      },
-      error: (error) => {
-        const errorMessage =
-          error.error?.message || error.error || 'Event creation failed';
-        this.showError(errorMessage);
-        console.error('Error while creating event:', error);
-      }
-    });
-  } else {
-    this.eventForm.markAllAsTouched();
-    this.showError('Please fill out all required fields.');
+      this.http.post(
+        'http://localhost:8080/api/event/create',
+        payload,
+        { 
+          headers: { 'Content-Type': 'application/json' },
+          observe: 'response' // This will give us the full response
+        }
+      ).subscribe({
+        next: (response) => {
+          // Check for successful status codes (200-299)
+          if (response.status >= 200 && response.status < 300) {
+            this.showSuccess('Event created successfully!');
+            
+            // Add a small delay to ensure the success message is shown
+            setTimeout(() => {
+              this.ngZone.run(() => {
+                this.router.navigate(['/dashboard']);
+              });
+            }, 500); // 500ms delay
+          } else {
+            this.showError('Unexpected response from server');
+          }
+        },
+        error: (error) => {
+          // Check if it's actually a success (status 201) but treated as error
+          if (error.status === 201) {
+            this.showSuccess('Event created successfully!');
+            
+            setTimeout(() => {
+              this.ngZone.run(() => {
+                this.router.navigate(['/dashboard']);
+              });
+            }, 500);
+          } else {
+            const errorMessage =
+              error.error?.message || error.error || 'Event creation failed';
+            this.showError(errorMessage);
+          }
+        }
+      });
+    } else {
+      this.eventForm.markAllAsTouched();
+      this.showError('Please fill out all required fields.');
+    }
   }
-}
 
 
   private showSuccess(message: string) {
