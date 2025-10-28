@@ -27,7 +27,7 @@
   </div>
 
   <div class="events-grid" *ngIf="!isLoading && getCurrentEvents().length; else noEvents">
-    <mat-card *ngFor="let event of getCurrentEvents()" class="event-card">
+    <mat-card *ngFor="let event of getCurrentEvents()" class="event-card" [routerLink]="['/event-details', event.id]" style="cursor:pointer;">
       <img mat-card-image [src]="formatEventForDisplay(event).image" alt="{{ event.title }}" />
       <mat-card-content>
         <div class="event-category">{{ formatEventForDisplay(event).category }}</div>

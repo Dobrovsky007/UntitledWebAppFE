@@ -7,6 +7,7 @@ import { ExploreEvents } from './events/explore-events/explore-events';
 import { Dashboard } from './dashboard/dashboard';
 import { authGuard } from './shared/guards/auth.guard';
 import { CreateEvents } from './createEvent/create-events';
+import { EventDetails } from './events/event-details/event-details';
 
 export const routes: Routes = [
   { 
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'profile', component: UserProfile },
       { path: 'create-events', component: CreateEvents },
+      { path: 'event-details/:id', component: EventDetails },
     ]
   },
   { path: 'auth/login', component: Login },
@@ -31,4 +33,5 @@ export const routes: Routes = [
   { path: 'register', redirectTo: '/auth/register' }, // Redirect old register path
   { path: '**', redirectTo: '/auth/login' }, // Redirect any unknown routes to login
   { path: 'create', redirectTo: '/auth/events/login' },
+  // { path: 'event/:id', component: EventDetails },
 ];
