@@ -1,0 +1,60 @@
+<div class="event-details-container">
+  <ng-container *ngIf="isLoading">
+    <mat-card><p>Loading event details...</p></mat-card>
+  </ng-container>
+  <ng-container *ngIf="error">
+    <mat-card><p class="error">{{ error }}</p></mat-card>
+  </ng-container>
+  <ng-container *ngIf="!isLoading && !error && event">
+    <!-- Event Header -->
+    <mat-card class="event-header-card">
+  <div class="header-image" [style.backgroundImage]="'url(' + event.image + ')'"></div>
+      <div class="event-header-content">
+        <h2>{{ event.title }}</h2>
+        <div class="tags">
+          <span class="tag sport">{{ event.category || event.sport }}</span>
+          <span class="tag level">{{ event.level }}</span>
+        </div>
+
+        <div class="details">
+          <div class="info-item">
+            <mat-icon>event</mat-icon>
+            <span><strong>Date & Time:</strong> {{ event.date || event.startTime }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>location_on</mat-icon>
+            <span><strong>Location:</strong> {{ event.location || event.address }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>groups</mat-icon>
+            <span><strong>Participants:</strong> {{ event.participantsCount || (event.participants?.length + '/' + event.capacity) }}</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="warn">Join Event</button>
+          <button mat-stroked-button>
+            <mat-icon>share</mat-icon>
+            Share Event
+          </button>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Participants Section -->
+    <mat-card class="participants-card">
+      <div class="header">
+        <h3>Participants</h3>
+        <span class="count">{{ participants.length }}</span>
+      </div>
+
+      <div class="participant" *ngFor="let user of participants">
+        <img [src]="user.avatar || 'assets/avatars/default.jpg'" alt="{{ user.name || user.username }}" />
+        <div class="info">
+          <span class="name">{{ user.name || user.username }}</span>
+          <span class="badge">{{ user.level }}</span>
+        </div>
+      </div>
+    </mat-card>
+  </ng-container>
+</div>
