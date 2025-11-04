@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: eventified-frontend-ingress
   namespace: eventified
+  annotations:
+    kubernetes.io/ingress.class: traefik
 spec:
   rules:
     - host: cloud.kosickaakademia.sk
