@@ -4,8 +4,9 @@ metadata:
   name: eventified-frontend-ingress
   namespace: eventified
   annotations:
-    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
+  ingressClassName: traefik
   rules:
     - host: cloud.kosickaakademia.sk
       http:
