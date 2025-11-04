@@ -3,12 +3,9 @@ kind: Ingress
 metadata:
   name: eventified-frontend-ingress
   namespace: eventified
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.priority: "50"
 spec:
   rules:
-    - host: cloud.kosickaakademia.sk  
+    - host: cloud.kosickaakademia.sk
       http:
         paths:
           - path: /eventified
