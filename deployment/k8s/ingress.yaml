@@ -2,11 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: eventified-frontend-ingress
-  namespace: eventified
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: eventified-strip-prefix-eventified@kubernetescrd
 spec:
-  ingressClassName: traefik
   rules:
     - host: cloud.kosickaakademia.sk
       http:
