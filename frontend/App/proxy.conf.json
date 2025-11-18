@@ -1,6 +1,8 @@
 {
-  "/api/*": {
+  "/api": {
     "target": "https://cloud.kosickaakademia.sk:8443/eventified",
-    "secure": true
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }
