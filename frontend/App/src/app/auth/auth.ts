@@ -10,6 +10,7 @@ export class Auth {
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
+    console.log('API URL:', `${this.apiUrl}/login`);
     // Remove responseType: 'text' to get JSON response
     return this.http.post(`${this.apiUrl}/login`, { username, password });
   }
