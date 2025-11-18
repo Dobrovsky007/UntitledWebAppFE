@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 interface Event {
   id?: string;
@@ -44,7 +45,7 @@ export class Dashboard implements OnInit {
     hosted: []
   };
 
-  private readonly apiUrl = 'http://localhost:8080/api/event';
+  private readonly apiUrl = `${environment.apiUrl}/event`;
 
   constructor(private http: HttpClient) {}
 

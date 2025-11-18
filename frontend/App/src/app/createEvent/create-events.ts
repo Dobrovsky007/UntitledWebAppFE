@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 
 // Angular Material Modules
@@ -130,7 +131,7 @@ export class CreateEvents implements OnInit {
       };
 
       this.http.post(
-        'http://localhost:8080/api/event/create',
+        `${environment.apiUrl}/event/create`,
         payload,
         { 
           headers: { 'Content-Type': 'application/json' },

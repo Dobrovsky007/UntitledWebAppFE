@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-event-details',
@@ -23,7 +24,7 @@ export class EventDetails implements OnInit {
   ngOnInit() {
     const eventId = this.route.snapshot.paramMap.get('id');
     if (eventId) {
-      this.http.get<any>(`http://localhost:8080/api/event/${eventId}`).subscribe({
+      this.http.get<any>(`${environment.apiUrl}/event/${eventId}`).subscribe({
         next: (data) => {
           this.event = data;
           this.participants = data.participants || [];

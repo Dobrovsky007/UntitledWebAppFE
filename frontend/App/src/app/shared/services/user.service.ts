@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface AddSportRequest {
   sport: number;
@@ -38,8 +39,8 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private readonly apiUrl = 'http://localhost:8080/api/user';
-  private readonly eventApiUrl = 'http://localhost:8080/api/event';
+  private readonly apiUrl = `${environment.apiUrl}/user`;
+  private readonly eventApiUrl = `${environment.apiUrl}/event`;
   
   private userSubject = new BehaviorSubject<User>({
     username: '',
