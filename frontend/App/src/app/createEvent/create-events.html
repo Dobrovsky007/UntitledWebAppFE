@@ -40,25 +40,32 @@
           <!-- Start and End Time -->
           <div class="time-row">
             <mat-form-field appearance="outline" class="form-field half rounded-field">
-              <mat-label>Start Time</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startTime" />
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startTime" readonly />
               <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
               <mat-datepicker #startPicker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field half rounded-field">
-              <mat-label>End Time</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endTime" />
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endTime" readonly />
               <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
               <mat-datepicker #endPicker></mat-datepicker>
             </mat-form-field>
           </div>
 
-          <!-- Capacity -->
-          <mat-form-field appearance="outline" class="form-field rounded-field">
-            <mat-label>Capacity</mat-label>
-            <input matInput type="number" formControlName="capacity" placeholder="Enter max participants" />
-          </mat-form-field>
+           <!-- Time Selection -->
+          <div class="time-row">
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>Start Time</mat-label>
+              <input matInput type="time" formControlName="startTime" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field half rounded-field">
+              <mat-label>End Time</mat-label>
+              <input matInput type="time" formControlName="endTime" />
+            </mat-form-field>
+          </div>
 
           <!-- Latitude & Longitude -->
            <!--

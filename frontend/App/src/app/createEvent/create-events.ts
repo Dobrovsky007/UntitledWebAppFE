@@ -15,13 +15,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { NgZone } from '@angular/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
+import { NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-create-events',
@@ -36,14 +35,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatToolbarModule,
     MatSidenavModule,
     MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   providers: [
-    provideNativeDateAdapter()
   ],
   templateUrl: './create-events.html',
   styleUrls: ['./create-events.scss'],
@@ -71,13 +69,14 @@ export class CreateEvents implements OnInit {
       sport: [0, Validators.required],
       address: ['', Validators.required],
       skillLevel: [0, Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       capacity: [0, [Validators.required, Validators.min(1)]],
       latitude: [null],
       longitude: [null],
-      
-    });
+  });
   }
 
   ngOnInit() {}

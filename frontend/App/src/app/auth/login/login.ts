@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService, LoginRequest } from '../../shared/services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -55,15 +56,37 @@ export class Login {
 
       const { username, password } = this.loginForm.value;
 
-      this.authService.login({ username, password }).subscribe({
+      this.authService.login({ username, password }).pipe(
+        finalize(() => { this.loading = false; }) // <- runs on complete OR error
+      )
+      .subscribe({
         next: (response) => {
           this.showSuccess('Login successful!');
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          const errorMessage = error.error?.message || error.error || 'Login failed';
+          let errorMessage = 'Login failed';
+  
+          // Try to extract message from different error response formats
+          if (error.error?.message) {
+            errorMessage = error.error.message;
+          } else if (error.error?.error) {
+            errorMessage = error.error.error;
+          } else if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (error.status === 0) {
+            errorMessage = 'Server not responding. Please check your connection.';
+          } else if (error.status === 401) {
+            errorMessage = 'Invalid username or password';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.statusText) {
+            errorMessage = error.statusText;
+          }
+  
           this.error = errorMessage;
           this.showError(errorMessage);
+          this.loading = false;
         },
         complete: () => {
           this.loading = false;
