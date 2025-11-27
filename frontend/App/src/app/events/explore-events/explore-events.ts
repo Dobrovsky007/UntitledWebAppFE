@@ -39,7 +39,7 @@ export class ExploreEvents implements OnInit {
     // Mock data for events
     this.events = [
       {
-        id: 1,
+        id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         title: 'Soccer Match',
         description: 'Friendly soccer match in the park',
         date: new Date(),
@@ -52,7 +52,7 @@ export class ExploreEvents implements OnInit {
         attendees: 8
       },
       {
-        id: 2,
+        id: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
         title: 'Basketball Game',
         description: 'Quick basketball game',
         date: new Date(),
@@ -69,7 +69,7 @@ export class ExploreEvents implements OnInit {
     // Mock data for recommendations
     this.recommended = [
       {
-        id: 3,
+        id: 'c3d4e5f6-g7h8-9012-cdef-345678901234',
         title: 'Tennis Match',
         description: 'Singles tennis match',
         date: new Date(),
@@ -84,7 +84,7 @@ export class ExploreEvents implements OnInit {
     ];
   }
 
-  joinEvent(eventId: number) {
+  joinEvent(eventId: string) {
     // TODO: Implement join event logic
   }
 }

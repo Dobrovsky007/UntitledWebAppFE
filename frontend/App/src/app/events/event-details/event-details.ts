@@ -22,22 +22,29 @@ export class EventDetails implements OnInit {
   constructor(private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit() {
-    const eventId = this.route.snapshot.paramMap.get('id');
-    if (eventId) {
-      this.http.get<any>(`${environment.apiUrl}/event/${eventId}`).subscribe({
-        next: (data) => {
-          this.event = data;
-          this.participants = data.participants || [];
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.error = 'Failed to load event details.';
-          this.isLoading = false;
-        }
-      });
-    } else {
-      this.error = 'No event ID provided.';
-      this.isLoading = false;
-    }
+    this.route.paramMap.subscribe(params => {
+      const eventId = params.get('id');
+      console.log('Raw eventId from route:', eventId); // Debug log
+      console.log('All route params:', params.keys.map(k => k + ': ' + params.get(k))); // Debug log
+      
+      if (eventId) {
+        this.http.get<any>(`${environment.apiUrl}/event/details/${eventId}`).subscribe({
+          next: (data) => {
+            this.event = data;
+            this.participants = data.participants || [];
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('Error loading event details:', err); // Debug log
+            this.error = 'Failed to load event details.';
+            this.isLoading = false;
+          }
+        });
+      } else {
+        console.error('No eventId found in route parameters'); // Debug log
+        this.error = 'No event ID provided.';
+        this.isLoading = false;
+      }
+    });
   }
 }
