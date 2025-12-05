@@ -24,8 +24,6 @@ export class EventDetails implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const eventId = params.get('id');
-      console.log('Raw eventId from route:', eventId); // Debug log
-      console.log('All route params:', params.keys.map(k => k + ': ' + params.get(k))); // Debug log
       
       if (eventId) {
         this.http.get<any>(`${environment.apiUrl}/event/details/${eventId}`).subscribe({
@@ -41,7 +39,6 @@ export class EventDetails implements OnInit {
           }
         });
       } else {
-        console.error('No eventId found in route parameters'); // Debug log
         this.error = 'No event ID provided.';
         this.isLoading = false;
       }

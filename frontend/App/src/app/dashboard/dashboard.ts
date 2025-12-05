@@ -80,9 +80,6 @@ export class Dashboard implements OnInit {
       hostedPast: hostedPast$
     }).subscribe({
       next: (results) => {
-        console.log('Dashboard events from backend:', results); // Debug log
-        console.log('Sample upcoming event:', results.hostedUpcoming[0]); // Debug log
-        
         // Upcoming tab: Show hosted upcoming events for now
         this.events.upcoming = results.hostedUpcoming.map(event => ({ ...event, type: 'hosted' as const }));
         
