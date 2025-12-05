@@ -122,11 +122,18 @@ export class CreateEvents implements OnInit {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
 
-      // ✅ Convert start and end times to proper ISO timestamps
+      // Convert date to YYYY-MM-DD string format
+      const startDateStr = this.formatDate(formValue.startDate);
+      const endDateStr = this.formatDate(formValue.endDate);
+
+      // Combine date + time into ISO timestamps
+      const startDateTime = new Date(`${startDateStr}T${formValue.startTime}`).toISOString();
+      const endDateTime = new Date(`${endDateStr}T${formValue.endTime}`).toISOString();
+
       const payload = {
         ...formValue,
-        startTime: new Date(formValue.startTime).toISOString(),
-        endTime: new Date(formValue.endTime).toISOString(),
+        startTime: startDateTime,
+        endTime: endDateTime,
       };
 
       this.http.post(
@@ -134,37 +141,31 @@ export class CreateEvents implements OnInit {
         payload,
         { 
           headers: { 'Content-Type': 'application/json' },
-          observe: 'response' // This will give us the full response
+          observe: 'response'
         }
       ).subscribe({
         next: (response) => {
-          // Check for successful status codes (200-299)
           if (response.status >= 200 && response.status < 300) {
             this.showSuccess('Event created successfully!');
-            
-            // Add a small delay to ensure the success message is shown
-            setTimeout(() => {
-              this.ngZone.run(() => {
-                this.router.navigate(['/dashboard']);
-              });
-            }, 500); // 500ms delay
-          } else {
-            this.showError('Unexpected response from server');
-          }
-        },
-        error: (error) => {
-          // Check if it's actually a success (status 201) but treated as error
-          if (error.status === 201) {
-            this.showSuccess('Event created successfully!');
-            
             setTimeout(() => {
               this.ngZone.run(() => {
                 this.router.navigate(['/dashboard']);
               });
             }, 500);
           } else {
-            const errorMessage =
-              error.error?.message || error.error || 'Event creation failed';
+            this.showError('Unexpected response from server');
+          }
+        },
+        error: (error) => {
+          if (error.status === 201) {
+            this.showSuccess('Event created successfully!');
+            setTimeout(() => {
+              this.ngZone.run(() => {
+                this.router.navigate(['/dashboard']);
+              });
+            }, 500);
+          } else {
+            const errorMessage = error.error?.message || error.error || 'Event creation failed';
             this.showError(errorMessage);
           }
         }
@@ -175,6 +176,23 @@ export class CreateEvents implements OnInit {
     }
   }
 
+  // Helper method to convert Date to YYYY-MM-DD string
+  private formatDate(date: any): string {
+    if (!date) return '';
+    
+    // If it's already a string, return it
+    if (typeof date === 'string') return date;
+    
+    // If it's a Date object, convert to YYYY-MM-DD
+    if (date instanceof Date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return '';
+  }
 
   private showSuccess(message: string) {
     this.snackBar.open(message, 'Close', {
