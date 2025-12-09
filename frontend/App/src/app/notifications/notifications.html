@@ -1,0 +1,26 @@
+<div class="notifications-container">
+  <div class="page-header">
+    <h2>Notifications</h2>
+  </div>
+
+  <div class="notifications-list" *ngIf="notifications?.length; else emptyState">
+    <mat-list>
+      <mat-list-item *ngFor="let n of notifications" class="notification-item">
+        <div class="avatar" aria-label="notification-icon">
+          <mat-icon>{{ n.type === 'alert' ? 'priority_high' : 'notifications' }}</mat-icon>
+        </div>
+        <div class="content">
+          <div class="title" [innerHTML]="n.title"></div>
+          <div class="message" *ngIf="n.message">{{ n.message }}</div>
+        </div>
+        <div class="time" aria-label="notification-time">{{ n.time | date:'short' }}</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <p>You have no notifications.</p>
+    </div>
+  </ng-template>
+</div>
