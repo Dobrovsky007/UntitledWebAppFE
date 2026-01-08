@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,12 +13,38 @@ import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { RouterModule } from '@angular/router';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { environment } from '../../../environments/environment';
+
+interface FilterCriteria {
+  sports?: number[];
+  skillLevels?: number[];
+  startTimeAfter?: string;
+  endTimeBefore?: string;
+  freeSlots?: number;
+}
+
+interface Event {
+  id: string;
+  title: string;
+  sport: number;
+  skillLevel: number;
+  address: string;
+  startTime: string;
+  capacity: number;
+  occupied?: number;
+  image?: string;
+  category?: string;
+  freeSlots?: number;
+}
 
 @Component({
   selector: 'app-explore-events',
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     MatCardModule,
     MatButtonModule,
@@ -26,62 +55,287 @@ import { RouterModule } from '@angular/router';
     MatListModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './explore-events.html',
   styleUrl: './explore-events.scss'
 })
 export class ExploreEvents implements OnInit {
-  events: any[] = [];
-  recommended: any[] = [];
+  events: Event[] = [];
+  filteredEvents: Event[] = [];
+  isLoading = false;
+  error: string | null = null;
+
+  // Filter options
+  filters: FilterCriteria = {};
+  
+  // Available options for dropdowns (same as user profile)
+  sportOptions = [
+    { value: 1, name: 'Soccer' },
+    { value: 2, name: 'Basketball' },
+    { value: 3, name: 'Small Football' },
+    { value: 4, name: 'Floorball' },
+    { value: 5, name: 'Ice Hockey' },
+    { value: 6, name: 'Volleyball' },
+    { value: 7, name: 'Tennis' },
+    { value: 8, name: 'Golf' },
+    { value: 9, name: 'Table Tennis' },
+    { value: 10, name: 'Badminton' },
+    { value: 11, name: 'Running' },
+    { value: 12, name: 'Swimming' },
+    { value: 13, name: 'Handball' },
+    { value: 14, name: 'Chess' },
+    { value: 15, name: 'Cycling' },
+    { value: 16, name: 'Frisbee' },
+    { value: 17, name: 'Hiking' },
+    { value: 18, name: 'Padel' },
+    { value: 19, name: 'Footvolley' },
+    { value: 20, name: 'Bowling' },
+    { value: 21, name: 'Darts' }
+  ];
+
+  skillLevelOptions = [
+    { value: 1, name: 'Beginner' },
+    { value: 2, name: 'Intermediate' },
+    { value: 3, name: 'Advanced' }
+  ];
+
+  freeSlotsOptions = [
+    { value: 1, name: '1+ spots' },
+    { value: 2, name: '2+ spots' },
+    { value: 3, name: '3+ spots' },
+    { value: 5, name: '5+ spots' }
+  ];
+
+  // Form fields
+  selectedSports: number[] = [];
+  selectedSkillLevels: number[] = [];
+  selectedFreeSlots: number | null = null;
+  startDateAfter: Date | null = null;
+  endDateBefore: Date | null = null;
+
+  private readonly apiUrl = `${environment.apiUrl}/event`;
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    // Mock data for events
-    this.events = [
-      {
-        id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        title: 'Soccer Match',
-        description: 'Friendly soccer match in the park',
-        date: new Date(),
-        location: 'Central Park',
-        participants: 8,
-        maxParticipants: 10,
-        sport: 'Soccer',
-        image: 'assets/soccer.jpg',
-        category: 'Soccer',
-        attendees: 8
-      },
-      {
-        id: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
-        title: 'Basketball Game',
-        description: 'Quick basketball game',
-        date: new Date(),
-        location: 'Basketball Court',
-        participants: 4,
-        maxParticipants: 6,
-        sport: 'Basketball',
-        image: 'assets/basketball.jpg',
-        category: 'Basketball',
-        attendees: 4
-      }
-    ];
+    this.loadAllEvents();
+  }
 
-    // Mock data for recommendations
-    this.recommended = [
-      {
-        id: 'c3d4e5f6-g7h8-9012-cdef-345678901234',
-        title: 'Tennis Match',
-        description: 'Singles tennis match',
-        date: new Date(),
-        location: 'Tennis Club',
-        participants: 1,
-        maxParticipants: 2,
-        sport: 'Tennis',
-        image: 'assets/tennis.jpg',
-        category: 'Tennis',
-        attendees: 1
+  /**
+   * Load all events that are in the future
+   */
+  loadAllEvents() {
+    this.isLoading = true;
+    this.error = null;
+
+    // Get auth token for API calls
+    const token = localStorage.getItem('authToken');
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    this.http.get<Event[]>(`${this.apiUrl}/all`, { headers }).subscribe({
+      next: (events) => {
+        console.log('Raw events from backend:', events);
+        // Filter to only show future events
+        this.events = events.filter(event => new Date(event.startTime) > new Date());
+        this.filteredEvents = [...this.events];
+        this.enhanceEventData();
+        this.isLoading = false;
+        console.log('Processed events:', this.filteredEvents);
+      },
+      error: (err) => {
+        console.error('Error loading events:', err);
+        if (err.status === 404) {
+          this.error = 'No events found.';
+        } else if (err.status === 401) {
+          this.error = 'Authentication required. Please log in.';
+        } else if (err.status === 0) {
+          this.error = 'Cannot connect to server. Please check if the backend is running.';
+        } else {
+          this.error = 'Failed to load events. Please try again.';
+        }
+        this.isLoading = false;
       }
-    ];
+    });
+  }
+
+  /**
+   * Apply filters using the backend filter API
+   */
+  applyFilters() {
+    this.isLoading = true;
+    this.error = null;
+
+    // Get auth token for API calls
+    const token = localStorage.getItem('authToken');
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    // Build filter criteria
+    const criteria: FilterCriteria = {};
+    
+    if (this.selectedSports.length > 0) {
+      criteria.sports = this.selectedSports;
+    }
+    
+    if (this.selectedSkillLevels.length > 0) {
+      criteria.skillLevels = this.selectedSkillLevels;
+    }
+    
+    if (this.startDateAfter) {
+      criteria.startTimeAfter = this.startDateAfter.toISOString();
+    }
+    
+    if (this.endDateBefore) {
+      criteria.endTimeBefore = this.endDateBefore.toISOString();
+    }
+    
+    if (this.selectedFreeSlots !== null) {
+      criteria.freeSlots = this.selectedFreeSlots;
+    }
+
+    // If no filters applied, show all events
+    if (Object.keys(criteria).length === 0) {
+      this.loadAllEvents();
+      return;
+    }
+
+    // Build HTTP params
+    let params = new HttpParams();
+    
+    if (criteria.sports) {
+      criteria.sports.forEach(sport => {
+        params = params.append('sports', sport.toString());
+      });
+    }
+    
+    if (criteria.skillLevels) {
+      criteria.skillLevels.forEach(level => {
+        params = params.append('skillLevels', level.toString());
+      });
+    }
+    
+    if (criteria.startTimeAfter) {
+      params = params.set('startTimeAfter', criteria.startTimeAfter);
+    }
+    
+    if (criteria.endTimeBefore) {
+      params = params.set('endTimeBefore', criteria.endTimeBefore);
+    }
+    
+    if (criteria.freeSlots) {
+      params = params.set('freeSlots', criteria.freeSlots.toString());
+    }
+
+    console.log('Applying filters with params:', params.toString());
+
+    // Call the filter API
+    this.http.get<Event[]>(`${this.apiUrl}/filter`, { params, headers }).subscribe({
+      next: (events) => {
+        console.log('Filtered events from backend:', events);
+        // Still filter for future events in case backend doesn't
+        this.filteredEvents = events.filter(event => new Date(event.startTime) > new Date());
+        this.enhanceEventData();
+        this.isLoading = false;
+        console.log('Final filtered events:', this.filteredEvents);
+      },
+      error: (err) => {
+        console.error('Error filtering events:', err);
+        if (err.status === 500) {
+          this.error = 'No events found matching your criteria.';
+        } else if (err.status === 401) {
+          this.error = 'Authentication required. Please log in.';
+        } else if (err.status === 400) {
+          this.error = 'Invalid filter parameters.';
+        } else {
+          this.error = 'Failed to filter events. Please try again.';
+        }
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Clear all filters and show all events
+   */
+  clearFilters() {
+    this.selectedSports = [];
+    this.selectedSkillLevels = [];
+    this.selectedFreeSlots = null;
+    this.startDateAfter = null;
+    this.endDateBefore = null;
+    this.loadAllEvents();
+  }
+
+  /**
+   * Remove a sport filter
+   */
+  removeSportFilter(sportId: number) {
+    this.selectedSports = this.selectedSports.filter(s => s !== sportId);
+    this.applyFilters();
+  }
+
+  /**
+   * Remove a skill level filter
+   */
+  removeSkillLevelFilter(levelId: number) {
+    this.selectedSkillLevels = this.selectedSkillLevels.filter(l => l !== levelId);
+    this.applyFilters();
+  }
+
+  /**
+   * Enhance event data with additional fields for display
+   */
+  private enhanceEventData() {
+    this.filteredEvents = this.filteredEvents.map(event => ({
+      ...event,
+      category: this.getSportName(event.sport),
+      image: 'assets/logo.svg', // Placeholder image
+      freeSlots: event.capacity - (event.occupied || 0)
+    }));
+  }
+
+  /**
+   * Get sport name from sport ID
+   */
+  getSportName(sportId: number): string {
+    const sport = this.sportOptions.find(s => s.value === sportId);
+    return sport?.name || 'Unknown Sport';
+  }
+
+  /**
+   * Get skill level name from skill level ID
+   */
+  getSkillLevelName(skillLevelId: number): string {
+    const level = this.skillLevelOptions.find(l => l.value === skillLevelId);
+    return level?.name || 'Unknown Level';
+  }
+
+  /**
+   * Format date for display
+   */
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString() + ' ' + 
+           new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Check if filters are active
+   */
+  hasActiveFilters(): boolean {
+    return this.selectedSports.length > 0 ||
+           this.selectedSkillLevels.length > 0 ||
+           this.selectedFreeSlots !== null ||
+           this.startDateAfter !== null ||
+           this.endDateBefore !== null;
   }
 
   joinEvent(eventId: string) {

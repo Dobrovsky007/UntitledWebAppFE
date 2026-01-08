@@ -37,24 +37,30 @@
             </mat-select>
           </mat-form-field>
 
-          <!-- Start and End Time -->
+          <!-- Capacity -->
+          <mat-form-field appearance="outline" class="form-field rounded-field">
+            <mat-label>Capacity</mat-label>
+            <input matInput type="number" formControlName="capacity" placeholder="Enter max participants" />
+          </mat-form-field>
+
+          <!-- Start and End Date -->
           <div class="time-row">
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startTime" readonly />
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" readonly />
               <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
               <mat-datepicker #startPicker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endTime" readonly />
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate" readonly />
               <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
               <mat-datepicker #endPicker></mat-datepicker>
             </mat-form-field>
           </div>
 
-           <!-- Time Selection -->
+          <!-- Start and End Time -->
           <div class="time-row">
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>Start Time</mat-label>
@@ -67,27 +73,12 @@
             </mat-form-field>
           </div>
 
-          <!-- Latitude & Longitude -->
-           <!--
-          <div class="latlon-row">
-            <mat-form-field appearance="outline" class="form-field half rounded-field">
-              <mat-label>Latitude</mat-label>
-              <input matInput type="number" formControlName="latitude" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field half rounded-field">
-              <mat-label>Longitude</mat-label>
-              <input matInput type="number" formControlName="longitude" />
-            </mat-form-field>
-          </div>
-          -->
-
-            <!-- Map Location Picker -->
+          <!-- Map Location Picker -->
           <div class="map-section">
             <div id="map" class="map-container"></div>
-              <p class="text-sm text-gray-600 mt-2">
-                Click on the map to set event location.
-              </p>
+            <p class="text-sm text-gray-600 mt-2">
+              Click on the map to set event location.
+            </p>
           </div>
 
           <!-- Submit -->

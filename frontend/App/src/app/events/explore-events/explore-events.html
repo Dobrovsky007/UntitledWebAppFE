@@ -1,111 +1,194 @@
-<!-- src/app/events/explore-events/explore-events.component.html -->
-<mat-sidenav-container class="layout-container">
-    <!-- Sidebar outdated-->
-  <!-- 
-    <mat-sidenav mode="side" opened>
-      <mat-nav-list>
-        <a mat-list-item routerLink="/events">Explore Events</a>
-        <a mat-list-item routerLink="/my-events">My Events</a>
-        <a mat-list-item routerLink="/create">Create Event</a>
-        <a mat-list-item routerLink="/profile">Profile</a>
-      </mat-nav-list>
-    </mat-sidenav>
-  -->
-    <!-- Main Content -->
-    <mat-sidenav-content>
-      <!-- Header -->
-      <mat-toolbar color="primary" class="toolbar">
-        <span class="title">Explore Events</span>
-        <span class="spacer"></span>
-        <mat-form-field class="search">
-          <input matInput placeholder="Search events" />
-        </mat-form-field>
-        <button mat-icon-button>
-          <mat-icon>account_circle</mat-icon>
+<div class="explore-events-container">
+
+  <!-- Top Filters Section -->
+  <div class="top-filters">
+    <div class="filters-header">
+      <h3>Filters</h3>
+      <button mat-icon-button (click)="clearFilters()" *ngIf="hasActiveFilters()" matTooltip="Clear filters">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <div class="filters-row">
+      <!-- Sports Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sports</mat-label>
+        <mat-select [(value)]="selectedSports" multiple (selectionChange)="applyFilters()">
+          <mat-option *ngFor="let sport of sportOptions" [value]="sport.value">
+            {{sport.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Skill Level Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Skill Level</mat-label>
+        <mat-select [(value)]="selectedSkillLevels" multiple (selectionChange)="applyFilters()">
+          <mat-option *ngFor="let level of skillLevelOptions" [value]="level.value">
+            {{level.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Start Date Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDateAfter" (dateChange)="applyFilters()">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- End Date Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDateBefore" (dateChange)="applyFilters()">
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Free Slots Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Min Free Slots</mat-label>
+        <mat-select [(value)]="selectedFreeSlots" (selectionChange)="applyFilters()">
+          <mat-option [value]="null">Any</mat-option>
+          <mat-option *ngFor="let option of freeSlotsOptions" [value]="option.value">
+            {{option.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Apply/Clear Buttons -->
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="applyFilters()" class="filter-button">
+          <mat-icon>search</mat-icon>
         </button>
-      </mat-toolbar>
-  
-      <!-- Filter Section -->
-      <div class="filters">
-        <mat-form-field>
-          <mat-select placeholder="All Sports">
-            <mat-option value="all">All</mat-option>
-            <mat-option value="football">Football</mat-option>
-            <mat-option value="basketball">Basketball</mat-option>
-            <mat-option value="tennis">Tennis</mat-option>
-          </mat-select>
-        </mat-form-field>
-  
-        <mat-form-field>
-          <mat-select placeholder="Anywhere">
-            <mat-option value="anywhere">Anywhere</mat-option>
-            <mat-option value="citypark">City Park</mat-option>
-          </mat-select>
-        </mat-form-field>
-  
-        <mat-form-field>
-          <mat-select placeholder="Any Date">
-            <mat-option value="anydate">Any Date</mat-option>
-            <mat-option value="today">Today</mat-option>
-            <mat-option value="weekend">Weekend</mat-option>
-          </mat-select>
-        </mat-form-field>
-  
-        <button mat-stroked-button color="primary">Clear Filters</button>
+        <button mat-stroked-button (click)="clearFilters()" class="filter-button" *ngIf="hasActiveFilters()">
+          <mat-icon>clear</mat-icon>
+        </button>
       </div>
-  
-      <!-- Event Grid -->
-      <h3>Explore Events</h3>
-      <div class="event-grid">
-        <mat-card *ngFor="let event of events" class="event-card" [routerLink]="['/event-details', event.id]" style="cursor:pointer;">
-          <img mat-card-image [src]="event.image" alt="{{ event.title }}">
-          <mat-card-header>
-            <mat-card-title>{{ event.title }}</mat-card-title>
-            <mat-card-subtitle>{{ event.date }} · {{ event.location }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <span class="category">{{ event.category }}</span>
-            <span class="attendees">{{ event.attendees }} joined</span>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-button color="accent">Join</button>
-          </mat-card-actions>
-        </mat-card>
-  
-        <!-- Create Event Card -->
-        <mat-card class="create-card">
-          <mat-card-content>
-            <button mat-fab color="primary">
-              <mat-icon>add</mat-icon>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Loading Spinner -->
+        <div class="loading-container" *ngIf="isLoading">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading events...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-container" *ngIf="error" class="error-message">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{error}}</p>
+          <button mat-raised-button color="primary" (click)="loadAllEvents()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="events-grid" *ngIf="!isLoading && !error">
+          <!-- Results Summary -->
+          <div class="results-summary" *ngIf="filteredEvents.length > 0">
+            <h4>{{filteredEvents.length}} event{{filteredEvents.length !== 1 ? 's' : ''}} found</h4>
+            <div class="active-filters" *ngIf="hasActiveFilters()">
+              <mat-chip-set>
+                <mat-chip *ngFor="let sportId of selectedSports" removable (removed)="removeSportFilter(sportId)">
+                  {{getSportName(sportId)}}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+                <mat-chip *ngFor="let levelId of selectedSkillLevels" removable (removed)="removeSkillLevelFilter(levelId)">
+                  {{getSkillLevelName(levelId)}}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+                <mat-chip *ngIf="selectedFreeSlots" removable (removed)="selectedFreeSlots = null; applyFilters()">
+                  {{selectedFreeSlots}}+ free slots
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+                <mat-chip *ngIf="startDateAfter" removable (removed)="startDateAfter = null; applyFilters()">
+                  From {{startDateAfter | date:'shortDate'}}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+                <mat-chip *ngIf="endDateBefore" removable (removed)="endDateBefore = null; applyFilters()">
+                  To {{endDateBefore | date:'shortDate'}}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+
+          <!-- No Results Message -->
+          <div class="no-results" *ngIf="filteredEvents.length === 0">
+            <mat-icon>event_busy</mat-icon>
+            <h3>No events found</h3>
+            <p *ngIf="hasActiveFilters()">Try adjusting your filters to see more results.</p>
+            <p *ngIf="!hasActiveFilters()">No upcoming events are available at the moment.</p>
+            <button mat-raised-button color="primary" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+              Clear Filters
             </button>
-            <p>Create New Event</p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-  
-      <!-- Recommendations -->
-      <h3>Recommendations for You</h3>
-      <div class="event-grid">
-        <mat-card *ngFor="let event of recommended" class="event-card">
-          <img mat-card-image [src]="event.image" alt="{{ event.title }}">
-          <mat-card-header>
-            <mat-card-title>{{ event.title }}</mat-card-title>
-            <mat-card-subtitle>{{ event.date }} · {{ event.location }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <span class="category">{{ event.category }}</span>
-            <span class="attendees">{{ event.attendees }} joined</span>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-button color="accent">Join</button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-  
-      <!-- Footer -->
-      <footer class="footer">
-        <span>Company</span> · <span>Support</span> · <span>Legal</span>
-      </footer>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+          </div>
+
+          <!-- Event Cards -->
+          <div class="events-container" *ngIf="filteredEvents.length > 0">
+            <mat-card *ngFor="let event of filteredEvents" class="event-card" [routerLink]="['/event-details', event.id]">
+              <mat-card-header>
+                <div mat-card-avatar class="event-avatar">
+                  <mat-icon>sports_soccer</mat-icon>
+                </div>
+                <mat-card-title>{{event.title}}</mat-card-title>
+                <mat-card-subtitle>
+                  {{event.category}} • {{getSkillLevelName(event.skillLevel)}}
+                </mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <div class="event-info">
+                  <div class="info-row">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{formatDate(event.startTime)}}</span>
+                  </div>
+                  <div class="info-row">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{event.address}}</span>
+                  </div>
+                  <div class="info-row">
+                    <mat-icon>people</mat-icon>
+                    <span>{{event.freeSlots}} of {{event.capacity}} spots available</span>
+                  </div>
+                </div>
+
+                <div class="event-tags">
+                  <mat-chip-set>
+                    <mat-chip>{{event.category}}</mat-chip>
+                    <mat-chip>{{getSkillLevelName(event.skillLevel)}}</mat-chip>
+                    <mat-chip *ngIf="event.freeSlots && event.freeSlots > 0" [class.low-slots]="event.freeSlots <= 2">
+                      {{event.freeSlots}} spot{{event.freeSlots !== 1 ? 's' : ''}} left
+                    </mat-chip>
+                    <mat-chip *ngIf="!event.freeSlots || event.freeSlots === 0" class="full">
+                      Full
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              </mat-card-content>
+
+              <mat-card-actions align="end">
+                <button mat-button color="primary" 
+                        [disabled]="!event.freeSlots || event.freeSlots === 0"
+                        (click)="$event.stopPropagation(); joinEvent(event.id)">
+                  <mat-icon>add</mat-icon>
+                  {{(!event.freeSlots || event.freeSlots === 0) ? 'Full' : 'Join'}}
+                </button>
+                <button mat-button>
+                  <mat-icon>info</mat-icon>
+                  Details
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
   

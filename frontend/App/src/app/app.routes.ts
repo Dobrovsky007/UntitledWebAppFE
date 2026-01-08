@@ -8,6 +8,7 @@ import { Dashboard } from './dashboard/dashboard';
 import { authGuard } from './shared/guards/auth.guard';
 import { CreateEvents } from './createEvent/create-events';
 import { EventDetails } from './events/event-details/event-details';
+import { NotificationsComponent } from './notifications/notifications';
 
 export const routes: Routes = [
   { 
@@ -33,5 +34,5 @@ export const routes: Routes = [
   { path: 'register', redirectTo: '/auth/register' }, // Redirect old register path
   { path: '**', redirectTo: '/auth/login' }, // Redirect any unknown routes to login
   { path: 'create', redirectTo: '/auth/events/login' },
-  // { path: 'event/:id', component: EventDetails },
+  { path: 'notifications', component: NotificationsComponent },
 ];
