@@ -32,7 +32,14 @@
         </div>
 
         <div class="actions">
-          <button mat-raised-button color="warn">Join Event</button>
+          <button 
+            mat-raised-button 
+            color="warn" 
+            (click)="joinEvent()" 
+            [disabled]="isJoining || (event.occupied >= event.capacity)">
+            <mat-icon>{{isJoining ? 'hourglass_empty' : 'add'}}</mat-icon>
+            {{isJoining ? 'Joining...' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event')}}
+          </button>
           <button mat-stroked-button>
             <mat-icon>share</mat-icon>
             Share Event

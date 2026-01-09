@@ -339,6 +339,37 @@ export class ExploreEvents implements OnInit {
   }
 
   joinEvent(eventId: string) {
-    // TODO: Implement join event logic
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.error = 'Please log in to join events';
+      return;
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    this.http.post<any>(
+      `${this.apiUrl}/user/event/join?eventId=${eventId}`,
+      {},
+      { headers }
+    ).subscribe({
+      next: (response) => {
+        console.log('Successfully joined event:', response);
+        // Reload events to update the UI
+        this.loadAllEvents();
+      },
+      error: (err) => {
+        console.error('Error joining event:', err);
+        if (err.status === 400) {
+          this.error = 'You have already joined this event';
+        } else if (err.status === 401) {
+          this.error = 'Authentication required. Please log in.';
+        } else {
+          this.error = 'Failed to join event. Please try again.';
+        }
+      }
+    });
   }
 }
