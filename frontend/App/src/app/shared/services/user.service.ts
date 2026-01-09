@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface AddSportRequest {
@@ -117,16 +118,34 @@ export class UserService {
   }
 
   /**
-   * Loads user's past events
+   * Loads user's past events (both hosted and attended)
    */
   loadPastEvents(): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/past`);
+    const hosted$ = this.http.get<Event[]>(`${this.eventApiUrl}/hosted/past`).pipe(
+      catchError(() => of([]))
+    );
+    const attended$ = this.http.get<Event[]>(`${this.eventApiUrl}/attended/past`).pipe(
+      catchError(() => of([]))
+    );
+    
+    return forkJoin({ hosted: hosted$, attended: attended$ }).pipe(
+      map(({ hosted, attended }) => [...hosted, ...attended])
+    );
   }
 
   /**
-   * Loads user's upcoming events
+   * Loads user's upcoming events (both hosted and attended)
    */
   loadUpcomingEvents(): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.eventApiUrl}/hosted/upcoming`);
+    const hosted$ = this.http.get<Event[]>(`${this.eventApiUrl}/hosted/upcoming`).pipe(
+      catchError(() => of([]))
+    );
+    const attended$ = this.http.get<Event[]>(`${this.eventApiUrl}/attended/upcoming`).pipe(
+      catchError(() => of([]))
+    );
+    
+    return forkJoin({ hosted: hosted$, attended: attended$ }).pipe(
+      map(({ hosted, attended }) => [...hosted, ...attended])
+    );
   }
 }

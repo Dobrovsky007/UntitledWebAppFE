@@ -82,10 +82,10 @@ export class EventDetails implements OnInit {
       'Content-Type': 'application/json'
     };
 
-    this.http.post<any>(
+    this.http.post(
       `${environment.apiUrl}/user/event/join?eventId=${this.eventId}`,
       {},
-      { headers }
+      { headers, responseType: 'text' }
     ).subscribe({
       next: (response) => {
         this.snackBar.open('Successfully joined the event!', 'Close', { duration: 3000 });

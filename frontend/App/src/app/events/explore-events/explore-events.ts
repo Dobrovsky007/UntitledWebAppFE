@@ -350,10 +350,10 @@ export class ExploreEvents implements OnInit {
       'Content-Type': 'application/json'
     };
 
-    this.http.post<any>(
+    this.http.post(
       `${this.apiUrl}/user/event/join?eventId=${eventId}`,
       {},
-      { headers }
+      { headers, responseType: 'text' }
     ).subscribe({
       next: (response) => {
         console.log('Successfully joined event:', response);
