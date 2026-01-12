@@ -249,12 +249,15 @@ export class ExploreEvents implements OnInit {
       },
       error: (err) => {
         console.error('Error filtering events:', err);
+        console.error('Error status:', err.status);
+        console.error('Error body:', err.error);
+        console.error('Error message:', err.message);
         if (err.status === 500) {
           this.error = 'No events found matching your criteria.';
         } else if (err.status === 401) {
           this.error = 'Authentication required. Please log in.';
         } else if (err.status === 400) {
-          this.error = 'Invalid filter parameters.';
+          this.error = 'Invalid filter parameters: ' + (typeof err.error === 'string' ? err.error : JSON.stringify(err.error));
         } else {
           this.error = 'Failed to filter events. Please try again.';
         }
