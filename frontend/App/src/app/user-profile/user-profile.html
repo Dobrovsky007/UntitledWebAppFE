@@ -32,15 +32,6 @@
       <div class="sports-header">
         <h3>Preferred Sports & Skills</h3>
         <div class="sports-actions">
-          <button mat-icon-button color="warn" (click)="testBackendConnection()" title="Test backend connection with JWT">
-            <mat-icon>bug_report</mat-icon>
-          </button>
-          <button mat-icon-button color="primary" (click)="checkAuthStatus()" title="Check authentication status">
-            <mat-icon>security</mat-icon>
-          </button>
-          <button mat-icon-button color="accent" (click)="loadUserProfile()" title="Refresh sports data">
-            <mat-icon>refresh</mat-icon>
-          </button>
           <button mat-icon-button color="primary" (click)="startAddingSport()" *ngIf="!editingSports">
             <mat-icon>add</mat-icon>
           </button>

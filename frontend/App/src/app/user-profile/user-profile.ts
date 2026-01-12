@@ -82,15 +82,6 @@ export class UserProfile implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadUserProfile();
     this.loadUserEvents();
-    
-    // Subscribe to user service updates in case user data changes elsewhere
-    this.userSubscription.add(
-      this.userService.user$.subscribe((user: User) => {
-        if (user.username) {
-          this.user = user;
-        }
-      })
-    );
   }
 
   ngOnDestroy() {
@@ -152,50 +143,6 @@ export class UserProfile implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
-  }
-
-  /**
-   * Test method to diagnose backend connection issues with JWT authentication
-   */
-  testBackendConnection(): void {
-    // Use the user service to make an authenticated request
-    this.userService.loadUserProfile().subscribe({
-      next: (response: any) => {
-        this.showSuccess('Backend connection test with JWT successful');
-      },
-      error: (error: any) => {
-        this.showError(`Backend test with JWT failed: ${error.status} ${error.statusText}`);
-      }
-    });
-  }
-
-  /**
-   * Check current authentication status and JWT token validity
-   */
-  checkAuthStatus(): void {
-    // Check if user is logged in
-    const isLoggedIn = this.authService.isAuthenticated();
-    
-    // Check token
-    const token = this.authService.getToken();
-    
-    if (token) {
-      // Try to decode token
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const isExpired = Date.now() > payload.exp * 1000;
-        
-        if (isExpired) {
-          this.showError('Authentication token has expired');
-        } else {
-          this.showSuccess('Authentication check completed - token is valid');
-        }
-      } catch (error) {
-        this.showError('Token decode error - invalid JWT format');
-      }
-    } else {
-      this.showError('No authentication token found');
-    }
   }
 
   /**
@@ -352,33 +299,9 @@ export class UserProfile implements OnInit, OnDestroy {
       next: (response) => {
         this.showSuccess('Sport added successfully!');
         
-        // Clear form
-        const addedSportName = this.getSportNameById(sportId) || this.newSport.name;
-        const addedLevelName = this.newSport.level;
-
-        // Optimistically update local user object so UI reflects change immediately
-        const newSportEntry = {
-          name: addedSportName,
-          level: addedLevelName,
-          sportId: sportId,
-          skillLevel: levelId
-        } as any;
-
-        this.user.sports = [...(this.user.sports || []), newSportEntry];
-        // Update shared user state
-        this.userService.setUser(this.user);
-
+        // Reload profile from backend to get the updated sports list
+        this.loadUserProfile();
         this.cancelAddingSport();
-
-        // Try to reload full profile but don't surface errors to the user if it fails
-        this.userService.loadUserProfile().subscribe({
-          next: (userData: any) => {
-            this.user = userData;
-          },
-          error: (err) => {
-            // Keep optimistic update and ignore backend error
-          }
-        });
       },
       error: (error) => {
         // Provide specific error messages based on status code
@@ -434,26 +357,17 @@ export class UserProfile implements OnInit, OnDestroy {
     // Optimistically remove from UI immediately
     const originalSports = [...this.user.sports];
     this.user.sports = this.user.sports.filter((_, i) => i !== index);
-    this.userService.setUser(this.user);
 
     this.userService.removeSport(sportId).subscribe({
       next: (response) => {
         this.showSuccess('Sport removed successfully!');
         
-        // Try to reload full profile but don't surface errors to the user if it fails
-        this.userService.loadUserProfile().subscribe({
-          next: (userData: any) => {
-            this.user = userData;
-          },
-          error: (err) => {
-            // Keep optimistic update and ignore backend error
-          }
-        });
+        // Reload profile from backend to get the updated sports list
+        this.loadUserProfile();
       },
       error: (error) => {
         // Revert optimistic update on error
         this.user.sports = originalSports;
-        this.userService.setUser(this.user);
         this.showError('Failed to remove sport');
       }
     });

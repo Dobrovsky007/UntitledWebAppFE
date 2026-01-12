@@ -191,11 +191,13 @@ export class ExploreEvents implements OnInit {
     }
     
     if (this.startDateAfter) {
-      criteria.startTimeAfter = this.startDateAfter.toISOString();
+      // Format as ISO local datetime without milliseconds and timezone (e.g., 2026-01-13T23:00:00)
+      criteria.startTimeAfter = this.startDateAfter.toISOString().slice(0, 19);
     }
     
     if (this.endDateBefore) {
-      criteria.endTimeBefore = this.endDateBefore.toISOString();
+      // Format as ISO local datetime without milliseconds and timezone (e.g., 2026-01-13T23:00:00)
+      criteria.endTimeBefore = this.endDateBefore.toISOString().slice(0, 19);
     }
     
     if (this.selectedFreeSlots !== null) {
