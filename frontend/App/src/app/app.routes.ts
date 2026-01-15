@@ -26,6 +26,7 @@ export const routes: Routes = [
       { path: 'profile', component: UserProfile },
       { path: 'create-events', component: CreateEvents },
       { path: 'event-details/:id', component: EventDetails },
+      { path: 'notifications', component: NotificationsComponent }
     ]
   },
   { path: 'auth/login', component: Login },

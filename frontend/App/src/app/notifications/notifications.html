@@ -3,24 +3,27 @@
     <h2>Notifications</h2>
   </div>
 
-  <div class="notifications-list" *ngIf="notifications?.length; else emptyState">
-    <mat-list>
-      <mat-list-item *ngFor="let n of notifications" class="notification-item">
-        <div class="avatar" aria-label="notification-icon">
-          <mat-icon>{{ n.type === 'alert' ? 'priority_high' : 'notifications' }}</mat-icon>
-        </div>
-        <div class="content">
-          <div class="title" [innerHTML]="n.title"></div>
-          <div class="message" *ngIf="n.message">{{ n.message }}</div>
-        </div>
-        <div class="time" aria-label="notification-time">{{ n.time | date:'short' }}</div>
-      </mat-list-item>
-    </mat-list>
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading notifications...</p>
   </div>
 
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <p>You have no notifications.</p>
+  <div *ngIf="error && !loading" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && notifications.length > 0" class="notifications-list">
+    <div *ngFor="let notification of notifications" class="notification-item" (click)="onNotificationClick(notification)">
+      <div class="notification-content">
+        <h3 class="notification-title">{{ notification.title || 'No title' }}</h3>
+        <p class="notification-message">{{ notification.messageOfNotification || 'No message available' }}</p>
+        <span class="notification-time">{{ (notification.createdAt) ? ((notification.createdAt) | date: 'short') : 'Unknown time' }}</span>
+      </div>
     </div>
-  </ng-template>
+  </div>
+
+  <div *ngIf="!loading && !error && notifications.length === 0" class="empty-state">
+    <mat-icon>notifications_off</mat-icon>
+    <p>No notifications yet</p>
+  </div>
 </div>

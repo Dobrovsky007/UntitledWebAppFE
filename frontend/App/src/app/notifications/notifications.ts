@@ -1,34 +1,37 @@
-import { Component, OnInit, NgModule } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { RouterModule, Routes } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
+import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-interface NotificationItem {
-  title: string;
-  message?: string;
-  time: string | Date;
-  type?: 'alert' | 'info';
+interface Notification {
+  id?: string;
+  title?: string;
+  messageOfNotification?: string;
+  isRead?: boolean;
+  createdAt?: string;
+  user?: any;
+  [key: string]: any;
 }
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatListModule,
-    MatIconModule
-  ],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './notifications.html',
   styleUrls: ['./notifications.scss']
 })
 export class NotificationsComponent implements OnInit {
-  notifications: NotificationItem[] = [];
+  notifications: Notification[] = [];
+  loading = true;
+  error: string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -36,25 +39,56 @@ export class NotificationsComponent implements OnInit {
 
   private loadNotifications(): void {
     this.http
-      .get<NotificationItem[]>(`${environment.apiUrl}/notifications`)
-      .pipe(catchError(() => of(this.mockNotifications())))
+      .get<Notification[]>(`${environment.apiUrl}/notifications/all`)
+      .pipe(
+        catchError((err) => {
+          console.error('Failed to load notifications:', err);
+          this.error = 'Failed to load notifications';
+          this.loading = false;
+          return of(null);
+        })
+      )
       .subscribe((data) => {
-        this.notifications = data && data.length ? data : this.mockNotifications();
+        console.log('API Response:', data);
+        console.log('Response type:', typeof data);
+        
+        if (data && Array.isArray(data)) {
+          this.notifications = data;
+          console.log(`Loaded ${data.length} notifications`);
+          data.forEach((n, i) => {
+            console.log(`[${i}] ID: ${n.id}, Title: ${n.title}, Read: ${n.isRead}`);
+          });
+        } else {
+          this.notifications = [];
+          this.error = 'No notifications available';
+        }
+        this.loading = false;
       });
   }
 
-  private mockNotifications(): NotificationItem[] {
-    return [
-      {
-        title: 'Welcome to Eventify!',
-        message: 'You will see your real notifications here once they start coming in.',
-        time: new Date(),
-        type: 'info'
-      }
-    ];
+  markAsRead(notification: Notification): void {
+    if (!notification.id) return;
+    
+    this.http
+      .put<any>(`${environment.apiUrl}/notifications/read/${notification.id}`, {})
+      .pipe(
+        catchError((err) => {
+          console.error('Failed to mark notification as read:', err);
+          return of(null);
+        })
+      )
+      .subscribe(() => {
+        notification.isRead = true;
+      });
+  }
+
+  onNotificationClick(notification: Notification): void {
+    // Mark as read when clicked
+    this.markAsRead(notification);
+    
+    if (notification.id) {
+      // Navigate to event details if event_id exists, otherwise just navigate to events
+      this.router.navigate(['/events']);
+    }
   }
 }
-
-const routes: Routes = [
-  { path: '', component: NotificationsComponent }
-];
