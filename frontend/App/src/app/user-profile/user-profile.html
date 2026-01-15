@@ -4,13 +4,9 @@
     <div class="profile-header">
       
       <div class="avatar-container">
-        <div class="avatar-wrapper" (click)="fileInput.click()">
+        <div class="avatar-wrapper">
           <img [src]="getAvatarUrl()" alt="Profile" class="avatar" />
-          <div class="avatar-overlay">
-            <mat-icon>camera_alt</mat-icon>
-          </div>
         </div>
-        <input type="file" (change)="onFileSelected($event)" hidden #fileInput accept="image/*" />
       </div>
 
       <div class="user-info">
@@ -90,91 +86,80 @@
       </div>
     </mat-card>
 
-    
-    <mat-card class="safety-card">
-      <h3>Safety & Trust</h3>
-      <p>
-        <mat-icon color="primary">verified</mat-icon>
-        Profile Verification: <span class="verified">Verified</span>
-      </p>
-      <button mat-stroked-button color="warn">Report User</button>
-      <button mat-stroked-button>Block User</button>
-    </mat-card>
-  </div>
-
-  <mat-card class="history-card">
-    <div class="events-header">
-      <h3>Event History</h3>
-      <button mat-icon-button color="accent" (click)="loadUserEvents()" title="Refresh events">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </div>
-
-    <!-- Loading indicator -->
-    <div *ngIf="eventsLoading" class="loading-events">
-      <mat-icon>refresh</mat-icon>
-      <span>Loading events...</span>
-    </div>
-
-    <!-- Event tabs and content -->
-    <div *ngIf="!eventsLoading" class="events-content">
-      
-      <!-- Tab buttons -->
-      <div class="event-tabs">
-        <button 
-          mat-button 
-          [class.active]="selectedEventTab === 'upcoming'"
-          (click)="selectEventTab('upcoming')"
-          class="tab-button">
-          <mat-icon>event</mat-icon>
-          <span>Upcoming ({{ upcomingEvents.length }})</span>
-        </button>
-        <button 
-          mat-button 
-          [class.active]="selectedEventTab === 'past'"
-          (click)="selectEventTab('past')"
-          class="tab-button">
-          <mat-icon>history</mat-icon>
-          <span>Past ({{ pastEvents.length }})</span>
+    <mat-card class="history-card">
+      <div class="events-header">
+        <h3>Event History</h3>
+        <button mat-icon-button color="accent" (click)="loadUserEvents()" title="Refresh events">
+          <mat-icon>refresh</mat-icon>
         </button>
       </div>
 
-      <!-- Events list -->
-      <div class="events-list" *ngIf="getDisplayEvents().length > 0">
-        <div class="event" *ngFor="let event of getDisplayEvents()">
-          <div class="event-icon">
-            <mat-icon [color]="selectedEventTab === 'upcoming' ? 'primary' : 'accent'">
-              {{ selectedEventTab === 'upcoming' ? 'event' : 'history' }}
-            </mat-icon>
-          </div>
-          <div class="event-info">
-            <h5>{{ event.title }}</h5>
-            <p class="event-details">
-              <span class="sport">{{ event.sport }}</span> • 
-              <span class="date">{{ event.date | date:'MMM dd, yyyy' }}</span> • 
-              <span class="location">{{ event.location }}</span>
-            </p>
-            <p *ngIf="event.description" class="event-description">{{ event.description }}</p>
-            <div *ngIf="event.participants && event.maxParticipants" class="participants">
-              {{ event.participants }}/{{ event.maxParticipants }} participants
+      <!-- Loading indicator -->
+      <div *ngIf="eventsLoading" class="loading-events">
+        <mat-icon>refresh</mat-icon>
+        <span>Loading events...</span>
+      </div>
+
+      <!-- Event tabs and content -->
+      <div *ngIf="!eventsLoading" class="events-content">
+        
+        <!-- Tab buttons -->
+        <div class="event-tabs">
+          <button 
+            mat-button 
+            [class.active]="selectedEventTab === 'upcoming'"
+            (click)="selectEventTab('upcoming')"
+            class="tab-button">
+            <mat-icon>event</mat-icon>
+            <span>Upcoming ({{ upcomingEvents.length }})</span>
+          </button>
+          <button 
+            mat-button 
+            [class.active]="selectedEventTab === 'past'"
+            (click)="selectEventTab('past')"
+            class="tab-button">
+            <mat-icon>history</mat-icon>
+            <span>Past ({{ pastEvents.length }})</span>
+          </button>
+        </div>
+
+        <!-- Events list -->
+        <div class="events-list" *ngIf="getDisplayEvents().length > 0">
+          <div class="event" *ngFor="let event of getDisplayEvents()">
+            <div class="event-icon">
+              <mat-icon [color]="selectedEventTab === 'upcoming' ? 'primary' : 'accent'">
+                {{ selectedEventTab === 'upcoming' ? 'event' : 'history' }}
+              </mat-icon>
             </div>
-            <div *ngIf="event.participants && !event.maxParticipants" class="participants">
-              {{ event.participants }} participants
+            <div class="event-info">
+              <h5>{{ event.title }}</h5>
+              <p class="event-details">
+                <span class="sport">{{ getSportNameForEvent(event.sport) }}</span>
+                <span class="date">{{ event.date | date:'MMM dd, yyyy' }}</span>
+                <span class="location">{{ event.location }}</span>
+              </p>
+              <p *ngIf="event.description" class="event-description">{{ event.description }}</p>
+              <div *ngIf="event.participants && event.maxParticipants" class="participants">
+                {{ event.participants }}/{{ event.maxParticipants }} participants
+              </div>
+              <div *ngIf="event.participants && !event.maxParticipants" class="participants">
+                {{ event.participants }} participants
+              </div>
             </div>
+            <span 
+              class="status" 
+              [ngClass]="selectedEventTab === 'upcoming' ? 'upcoming' : 'completed'">
+              {{ event.status || (selectedEventTab === 'upcoming' ? 'Upcoming' : 'Completed') }}
+            </span>
           </div>
-          <span 
-            class="status" 
-            [ngClass]="selectedEventTab === 'upcoming' ? 'upcoming' : 'completed'">
-            {{ event.status || (selectedEventTab === 'upcoming' ? 'Upcoming' : 'Completed') }}
-          </span>
+        </div>
+        
+        <!-- No events message -->
+        <div *ngIf="getDisplayEvents().length === 0" class="no-events">
+          <mat-icon>{{ selectedEventTab === 'upcoming' ? 'event_available' : 'event_busy' }}</mat-icon>
+          <p>No {{ selectedEventTab }} events found</p>
         </div>
       </div>
-      
-      <!-- No events message -->
-      <div *ngIf="getDisplayEvents().length === 0" class="no-events">
-        <mat-icon>{{ selectedEventTab === 'upcoming' ? 'event_available' : 'event_busy' }}</mat-icon>
-        <p>No {{ selectedEventTab }} events found</p>
-      </div>
-    </div>
-  </mat-card>
+    </mat-card>
+  </div>
 </div>

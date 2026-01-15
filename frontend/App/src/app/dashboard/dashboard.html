@@ -30,7 +30,6 @@
     <mat-card *ngFor="let event of getCurrentEvents()" class="event-card" [routerLink]="['/event-details', event.id]" style="cursor:pointer;">
       <img mat-card-image [src]="formatEventForDisplay(event).image" alt="{{ event.title }}" />
       <mat-card-content>
-        <div class="event-category">{{ formatEventForDisplay(event).category }}</div>
         <h3>{{ event.title }}</h3>
         <p class="event-date">{{ event.date }}</p>
         <p class="event-location">{{ event.location }}</p>

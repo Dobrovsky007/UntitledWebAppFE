@@ -373,6 +373,23 @@ export class UserProfile implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Get sport name by ID for event history display
+   */
+  getSportNameForEvent(sportId: number | string): string {
+    if (!sportId && sportId !== 0) return 'Unknown Sport';
+    
+    const id = typeof sportId === 'string' ? parseInt(sportId) : sportId;
+    
+    // Reverse lookup in sportMapping
+    for (const [name, value] of Object.entries(this.sportMapping)) {
+      if (value === id) {
+        return name;
+      }
+    }
+    return 'Unknown Sport';
+  }
+
   getSportId(sportName: string): number {
     return this.sportMapping[sportName] || 0;
   }
@@ -382,7 +399,7 @@ export class UserProfile implements OnInit, OnDestroy {
   }
 
   getAvatarUrl(): string {
-    return this.user.avatar || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjIwIiBmaWxsPSIjY2NjIi8+CjxlbGxpcHNlIGN4PSI2MCIgY3k9IjEwMCIgcng9IjMwIiByeT0iMjAiIGZpbGw9IiNjY2MiLz4KPC9zdmc+';
+    return this.user.avatar || 'assets/abstract-user-flat-4.svg';
   }
 
   private showSuccess(message: string) {

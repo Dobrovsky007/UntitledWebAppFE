@@ -12,11 +12,35 @@
     background-color: #f5f9ff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 
-    .header-image {
+    .header-map {
       height: 180px;
-      background-size: cover;
-      background-position: center;
+      background-color: #e0e0e0;
       border-bottom: 2px solid #e0e0e0;
+      
+      iframe {
+        display: block;
+      }
+
+      .no-map {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          margin-bottom: 8px;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+        }
+      }
     }
 
     .event-header-content {

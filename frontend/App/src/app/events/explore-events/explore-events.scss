@@ -1,7 +1,7 @@
 .explore-events-container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 
   .toolbar {
     position: sticky;
@@ -80,12 +80,9 @@
 
   .content-container {
     flex: 1;
-    overflow: hidden;
 
     .main-content {
-      height: 100%;
       padding: 16px;
-      overflow-y: auto;
 
       .loading-container {
         display: flex;

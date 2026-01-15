@@ -7,6 +7,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -29,7 +30,8 @@ export class EventDetails implements OnInit {
     private http: HttpClient,
     private snackBar: MatSnackBar,
     private router: Router,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -61,7 +63,25 @@ export class EventDetails implements OnInit {
       }
     });
   }
+/**
+   * Get Google Maps embed URL for the event location
+   */
+  getMapUrl(): SafeResourceUrl {
+    if (!this.event || !this.event.latitude || !this.event.longitude) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl('');
+    }
+    
+    const lat = this.event.latitude;
+    const lng = this.event.longitude;
+    const mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=${lat},${lng}&zoom=15`;
+    
+    // Alternative: Use OpenStreetMap (no API key needed)
+    const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
+    
+    return this.sanitizer.bypassSecurityTrustResourceUrl(osmUrl);
+  }
 
+  
   joinEvent() {
     if (!this.eventId || this.isJoining) return;
 
