@@ -107,7 +107,9 @@ export class UserService {
     const request: RemoveSportRequest = {
       sport: sportId
     };
-    return this.http.post(`${this.apiUrl}/sport/remove`, request);
+    return this.http.delete(`${this.apiUrl}/sport/remove`, {
+      body: request
+    });
   }
 
   /**

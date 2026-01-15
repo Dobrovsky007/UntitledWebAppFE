@@ -4,13 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-event-details',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, ClipboardModule],
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss'
 })
@@ -20,13 +21,15 @@ export class EventDetails implements OnInit {
   isLoading = true;
   error: string | null = null;
   isJoining = false;
+  isLeaving = false;
   eventId: string | null = null;
 
   constructor(
     private route: ActivatedRoute, 
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private clipboard: Clipboard
   ) {}
 
   ngOnInit() {
@@ -104,6 +107,90 @@ export class EventDetails implements OnInit {
           this.snackBar.open('Failed to join event. Please try again.', 'Close', { duration: 3000 });
         }
         this.isJoining = false;
+      }
+    });
+  }
+
+  /**
+   * Share event by copying the link to clipboard
+   */
+  shareEvent() {
+    if (!this.eventId) return;
+    
+    // Construct the event URL
+    const eventUrl = `${window.location.origin}/event-details/${this.eventId}`;
+    
+    // Copy to clipboard
+    const success = this.clipboard.copy(eventUrl);
+    
+    if (success) {
+      // Show success notification
+      this.snackBar.open('Event link copied to clipboard!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
+    } else {
+      // Show error notification
+      this.snackBar.open('Failed to copy link. Please try again.', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
+    }
+  }
+
+  /**
+   * Leave the event
+   */
+  leaveEvent() {
+    if (!this.eventId || this.isLeaving) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000 });
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.isLeaving = true;
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    this.http.delete(
+      `${environment.apiUrl}/user/event/leave?eventId=${this.eventId}`,
+      { headers, responseType: 'text' }
+    ).subscribe({
+      next: (response) => {
+        this.snackBar.open('Successfully left the event!', 'Close', { duration: 3000 });
+        
+        // Check if this was the last participant
+        if (this.participants.length <= 1) {
+          // Navigate back to explore events if user was the last one
+          this.snackBar.open('Event has been deleted as you were the last participant', 'Close', { duration: 4000 });
+          setTimeout(() => {
+            this.router.navigate(['/explore-events']);
+          }, 1500);
+        } else {
+          // Reload event details to update participant count
+          this.loadEventDetails();
+        }
+        this.isLeaving = false;
+      },
+      error: (err) => {
+        console.error('Error leaving event:', err);
+        if (err.status === 401) {
+          this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000 });
+          this.router.navigate(['/auth/login']);
+        } else if (err.status === 500) {
+          this.snackBar.open('You are not a participant of this event', 'Close', { duration: 3000 });
+        } else {
+          this.snackBar.open('Failed to leave event. Please try again.', 'Close', { duration: 3000 });
+        }
+        this.isLeaving = false;
       }
     });
   }

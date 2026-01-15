@@ -40,7 +40,15 @@
             <mat-icon>{{isJoining ? 'hourglass_empty' : 'add'}}</mat-icon>
             {{isJoining ? 'Joining...' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event')}}
           </button>
-          <button mat-stroked-button>
+          <button 
+            mat-raised-button 
+            style="background-color: #f44336; color: white;" 
+            (click)="leaveEvent()" 
+            [disabled]="isLeaving">
+            <mat-icon>{{isLeaving ? 'hourglass_empty' : 'exit_to_app'}}</mat-icon>
+            {{isLeaving ? 'Leaving...' : 'Leave Event'}}
+          </button>
+          <button mat-stroked-button (click)="shareEvent()">
             <mat-icon>share</mat-icon>
             Share Event
           </button>
