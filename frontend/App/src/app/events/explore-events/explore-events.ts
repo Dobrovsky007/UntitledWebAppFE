@@ -434,8 +434,13 @@ export class ExploreEvents implements OnInit {
    * Format date for display
    */
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString() + ' ' + 
-           new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + 
+           date.toLocaleTimeString([], { 
+             hour: '2-digit', 
+             minute: '2-digit',
+             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+           });
   }
 
   /**

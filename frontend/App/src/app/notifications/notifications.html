@@ -17,7 +17,7 @@
       <div class="notification-content">
         <h3 class="notification-title">{{ notification.title || 'No title' }}</h3>
         <p class="notification-message">{{ notification.messageOfNotification || 'No message available' }}</p>
-        <span class="notification-time">{{ (notification.createdAt) ? ((notification.createdAt) | date: 'short') : 'Unknown time' }}</span>
+        <span class="notification-time">{{ formatDate(notification.createdAt) }}</span>
       </div>
     </div>
   </div>

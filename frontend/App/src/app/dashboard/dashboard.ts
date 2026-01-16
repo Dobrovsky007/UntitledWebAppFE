@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
@@ -11,15 +15,21 @@ import { environment } from '../../environments/environment';
 interface Event {
   id?: string;
   title: string;
-  sport?: string;
+  sport?: number;
+  skillLevel?: number;
+  address: string;
+  startTime: string;
+  capacity: number;
+  occupied?: number;
+  image?: string;
   category?: string;
-  date: string;
-  location: string;
+  freeSlots?: number;
+  date?: string;
+  location?: string;
   participants?: number;
   maxParticipants?: number;
   players?: string;
   level?: string;
-  image?: string;
   description?: string;
   status?: string;
   type?: 'hosted' | 'attended';
@@ -27,13 +37,29 @@ interface Event {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, MatCardModule, MatButtonModule, RouterModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    RouterModule
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
   selectedTab: 'upcoming' | 'past' | 'hosted' = 'upcoming';
   isLoading = false;
+
+  skillLevelOptions = [
+    { value: 0, name: 'Beginner' },
+    { value: 1, name: 'Intermediate' },
+    { value: 2, name: 'Advanced' },
+    { value: 3, name: 'Professional' }
+  ];
 
   events: {
     upcoming: Event[];
@@ -47,7 +73,11 @@ export class Dashboard implements OnInit {
 
   private readonly apiUrl = `${environment.apiUrl}/event`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.loadEvents();
@@ -124,15 +154,123 @@ export class Dashboard implements OnInit {
     this.loadEvents();
   }
 
+  getSkillLevelName(skillLevel: number): string {
+    const option = this.skillLevelOptions.find(opt => opt.value === skillLevel);
+    return option ? option.name : 'Unknown';
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return 'TBD';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
+  }
+
+  deleteEvent(eventId: string | undefined, eventTitle: string): void {
+    if (!eventId) return;
+
+    const dialogRef = this.dialog.open(ConfirmDeleteDialog, {
+      width: '400px',
+      data: { eventTitle }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.performDelete(eventId);
+      }
+    });
+  }
+
+  private performDelete(eventId: string): void {
+    console.log('Starting delete for event ID:', eventId);
+    console.log('Full delete URL:', `${this.apiUrl}/delete/${eventId}`);
+    
+    this.http
+      .delete(`${this.apiUrl}/delete/${eventId}`, { responseType: 'text' })
+      .pipe(
+        catchError(error => {
+          console.error('Delete HTTP error:', error);
+          if (error.status === 403) {
+            this.snackBar.open('You are not the organizer of this event', 'Close', { duration: 3000 });
+          } else {
+            this.snackBar.open('Failed to delete event', 'Close', { duration: 3000 });
+          }
+          console.error('Delete error:', error);
+          return of(null);
+        })
+      )
+      .subscribe(result => {
+        console.log('Delete response received:', result);
+        console.log('Delete response status:', 'Success');
+        
+        if (result !== null) {
+          this.snackBar.open('Event deleted successfully', 'Close', { duration: 3000 });
+          
+          // Remove the event from the local arrays immediately for instant UI update
+          this.events.upcoming = this.events.upcoming.filter(e => e.id !== eventId);
+          this.events.past = this.events.past.filter(e => e.id !== eventId);
+          this.events.hosted = this.events.hosted.filter(e => e.id !== eventId);
+          
+          console.log('Event removed from local arrays. Events before reload:', this.events);
+          
+          // Then reload to ensure consistency with backend
+          setTimeout(() => {
+            console.log('Reloading events from backend...');
+            this.loadEvents();
+          }, 300);
+        }
+      });
+  }
+
   // Helper method to format event data for display
   formatEventForDisplay(event: Event): Event {
     return {
       ...event,
-      category: event.sport || event.category || 'Event',
+      category: (event.sport?.toString() || event.category || 'Event'),
       players: event.participants && event.maxParticipants 
         ? `${event.participants}/${event.maxParticipants} Players`
         : event.players || 'TBD',
       image: event.image || 'assets/events/default.jpg'
     };
+  }
+}
+
+// Confirmation Dialog Component
+@Component({
+  selector: 'app-confirm-delete-dialog',
+  template: `
+    <h2 mat-dialog-title>Delete Event?</h2>
+    <mat-dialog-content>
+      <p>Are you sure you want to delete "<strong>{{ data.eventTitle }}</strong>"?</p>
+      <p style="color: #999; font-size: 0.9rem;">This action cannot be undone.</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="warn" (click)="onConfirm()">
+        <mat-icon>delete</mat-icon>
+        Delete Event
+      </button>
+    </mat-dialog-actions>
+  `,
+  imports: [MatButtonModule, MatIconModule, MatDialogModule]
+})
+export class ConfirmDeleteDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmDeleteDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: { eventTitle: string }
+  ) {}
+
+  onCancel(): void {
+    this.dialogRef.close(false);
+  }
+
+  onConfirm(): void {
+    this.dialogRef.close(true);
   }
 }

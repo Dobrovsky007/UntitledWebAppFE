@@ -91,4 +91,16 @@ export class NotificationsComponent implements OnInit {
       this.router.navigate(['/events']);
     }
   }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return 'Unknown time';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
+  }
 }
