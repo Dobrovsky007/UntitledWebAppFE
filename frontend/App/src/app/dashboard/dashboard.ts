@@ -32,6 +32,8 @@ interface Event {
   level?: string;
   description?: string;
   status?: string;
+  statusOfEvent?: number;
+  rated?: boolean;
   type?: 'hosted' | 'attended';
 }
 

@@ -12,6 +12,10 @@ interface Notification {
   messageOfNotification?: string;
   isRead?: boolean;
   createdAt?: string;
+  typeOfNotification?: number;
+  event?: {
+    id?: string;
+  };
   user?: any;
   [key: string]: any;
 }
@@ -86,9 +90,17 @@ export class NotificationsComponent implements OnInit {
     // Mark as read when clicked
     this.markAsRead(notification);
     
-    if (notification.id) {
-      // Navigate to event details if event_id exists, otherwise just navigate to events
-      this.router.navigate(['/events']);
+    // Handle navigation based on notification type
+    // Type 4 = RATE_PARTICIPANTS notification
+    if (notification.typeOfNotification === 4 && notification.event?.id) {
+      // Navigate to rate participants page
+      this.router.navigate(['/rate-participants', notification.event.id]);
+    } else if (notification.event?.id) {
+      // Navigate to event details for other notification types
+      this.router.navigate(['/event-details', notification.event.id]);
+    } else {
+      // Fallback to dashboard
+      this.router.navigate(['/dashboard']);
     }
   }
 

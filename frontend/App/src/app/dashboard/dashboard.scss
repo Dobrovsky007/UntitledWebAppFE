@@ -76,6 +76,26 @@
 
       .mat-mdc-card-header-text {
         flex: 1;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+
+    img {
+      height: 160px;
+      object-fit: cover;
+    }
+
+    mat-card-content {
+      padding: 1rem;
+
+      .event-category {
+        color: white;
+        background: #ff4c4c;
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
       }
 
       .mat-mdc-card-title {
@@ -179,6 +199,41 @@
           font-size: 18px;
           width: 18px;
           height: 18px;
+        }
+      }
+    }
+
+    mat-card-actions {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e0e0e0;
+      
+      button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .rated-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #4caf50;
+        font-weight: 500;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
         }
       }
     }
