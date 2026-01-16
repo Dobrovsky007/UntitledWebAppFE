@@ -27,17 +27,35 @@
   </div>
 
   <div class="events-grid" *ngIf="!isLoading && getCurrentEvents().length; else noEvents">
-    <mat-card *ngFor="let event of getCurrentEvents()" class="event-card" [routerLink]="['/event-details', event.id]" style="cursor:pointer;">
-      <img mat-card-image [src]="formatEventForDisplay(event).image" alt="{{ event.title }}" />
-      <mat-card-content>
-        <h3>{{ event.title }}</h3>
-        <p class="event-date">{{ event.date }}</p>
-        <p class="event-location">{{ event.location }}</p>
-        <div class="event-footer">
-          <span>{{ formatEventForDisplay(event).players }}</span>
-          <span class="level" *ngIf="event.level">{{ event.level }}</span>
+    <mat-card *ngFor="let event of getCurrentEvents()" class="event-card">
+      <div [routerLink]="['/event-details', event.id]" style="cursor:pointer;">
+        <img mat-card-image [src]="formatEventForDisplay(event).image" alt="{{ event.title }}" />
+        <mat-card-content>
+          <h3>{{ event.title }}</h3>
+          <p class="event-date">{{ event.date }}</p>
+          <p class="event-location">{{ event.location }}</p>
+          <div class="event-footer">
+            <span>{{ formatEventForDisplay(event).players }}</span>
+            <span class="level" *ngIf="event.level">{{ event.level }}</span>
+          </div>
+        </mat-card-content>
+      </div>
+      
+      <!-- Rate Participants Button (only for hosted past events that are not rated) -->
+      <mat-card-actions *ngIf="selectedTab === 'hosted' && event.statusOfEvent === 2 && !event.rated">
+        <button mat-raised-button color="primary" [routerLink]="['/rate-participants', event.id]" (click)="$event.stopPropagation()">
+          <mat-icon>star_rate</mat-icon>
+          Rate Participants
+        </button>
+      </mat-card-actions>
+      
+      <!-- Already Rated Badge -->
+      <mat-card-actions *ngIf="selectedTab === 'hosted' && event.statusOfEvent === 2 && event.rated">
+        <div class="rated-badge">
+          <mat-icon>check_circle</mat-icon>
+          <span>Participants Rated</span>
         </div>
-      </mat-card-content>
+      </mat-card-actions>
     </mat-card>
   </div>
 

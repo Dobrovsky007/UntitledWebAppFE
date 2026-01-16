@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
@@ -22,12 +23,14 @@ interface Event {
   image?: string;
   description?: string;
   status?: string;
+  statusOfEvent?: number;
+  rated?: boolean;
   type?: 'hosted' | 'attended';
 }
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, MatCardModule, MatButtonModule, RouterModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, RouterModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

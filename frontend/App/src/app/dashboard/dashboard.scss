@@ -42,6 +42,8 @@
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 
     img {
       height: 160px;
@@ -77,6 +79,41 @@
           background: #e0e0e0;
           border-radius: 10px;
           padding: 2px 8px;
+        }
+      }
+    }
+
+    mat-card-actions {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e0e0e0;
+      
+      button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .rated-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #4caf50;
+        font-weight: 500;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
         }
       }
     }

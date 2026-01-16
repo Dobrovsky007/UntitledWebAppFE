@@ -9,6 +9,7 @@ import { authGuard } from './shared/guards/auth.guard';
 import { CreateEvents } from './createEvent/create-events';
 import { EventDetails } from './events/event-details/event-details';
 import { NotificationsComponent } from './notifications/notifications';
+import { RateParticipantsComponent } from './rate-participants/rate-participants';
 
 export const routes: Routes = [
   { 
@@ -26,7 +27,8 @@ export const routes: Routes = [
       { path: 'profile', component: UserProfile },
       { path: 'create-events', component: CreateEvents },
       { path: 'event-details/:id', component: EventDetails },
-      { path: 'notifications', component: NotificationsComponent }
+      { path: 'notifications', component: NotificationsComponent },
+      { path: 'rate-participants/:id', component: RateParticipantsComponent }
     ]
   },
   { path: 'auth/login', component: Login },
