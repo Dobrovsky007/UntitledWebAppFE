@@ -63,6 +63,13 @@ export class Dashboard implements OnInit {
     { value: 3, name: 'Professional' }
   ];
 
+  statusOptions = [
+    { value: 0, name: 'Upcoming' },
+    { value: 1, name: 'Ongoing' },
+    { value: 2, name: 'Past' },
+    { value: 4, name: 'Canceled' }
+  ];
+
   events: {
     upcoming: Event[];
     past: Event[];
@@ -158,6 +165,12 @@ export class Dashboard implements OnInit {
 
   getSkillLevelName(skillLevel: number): string {
     const option = this.skillLevelOptions.find(opt => opt.value === skillLevel);
+    return option ? option.name : 'Unknown';
+  }
+
+  getStatusName(status: number | undefined): string {
+    if (status === undefined) return 'Unknown';
+    const option = this.statusOptions.find(opt => opt.value === status);
     return option ? option.name : 'Unknown';
   }
 
