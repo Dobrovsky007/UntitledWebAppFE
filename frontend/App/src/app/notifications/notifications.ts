@@ -59,12 +59,15 @@ export class NotificationsComponent implements OnInit {
         if (data && Array.isArray(data)) {
           this.notifications = data;
           console.log(`Loaded ${data.length} notifications`);
+          if (data.length === 0) {
+            this.error = null; // No error, just no notifications
+          }
           data.forEach((n, i) => {
             console.log(`[${i}] ID: ${n.id}, Title: ${n.title}, Read: ${n.isRead}`);
           });
         } else {
           this.notifications = [];
-          this.error = 'No notifications available';
+          this.error = null; // No error, backend is working
         }
         this.loading = false;
       });
@@ -74,7 +77,7 @@ export class NotificationsComponent implements OnInit {
     if (!notification.id) return;
     
     this.http
-      .put<any>(`${environment.apiUrl}/notifications/read/${notification.id}`, {})
+      .put(`${environment.apiUrl}/notifications/read/${notification.id}`, {}, { responseType: 'text' })
       .pipe(
         catchError((err) => {
           console.error('Failed to mark notification as read:', err);
@@ -90,16 +93,26 @@ export class NotificationsComponent implements OnInit {
     // Mark as read when clicked
     this.markAsRead(notification);
     
+    // Debug logging
+    console.log('=== NOTIFICATION CLICKED ===');
+    console.log('Full notification:', notification);
+    console.log('Type:', notification.typeOfNotification);
+    console.log('Event object:', notification.event);
+    console.log('Event ID:', notification.event?.id);
+    
     // Handle navigation based on notification type
-    // Type 4 = RATE_PARTICIPANTS notification
-    if (notification.typeOfNotification === 4 && notification.event?.id) {
+    // Type 3 = RATE_PARTICIPANTS notification
+    if (notification.typeOfNotification === 3 && notification.event?.id) {
       // Navigate to rate participants page
+      console.log('✅ Navigating to RATE PARTICIPANTS page:', notification.event.id);
       this.router.navigate(['/rate-participants', notification.event.id]);
     } else if (notification.event?.id) {
       // Navigate to event details for other notification types
+      console.log('✅ Navigating to EVENT DETAILS page:', notification.event.id);
       this.router.navigate(['/event-details', notification.event.id]);
     } else {
       // Fallback to dashboard
+      console.log('❌ No event ID or type mismatch, navigating to DASHBOARD');
       this.router.navigate(['/dashboard']);
     }
   }

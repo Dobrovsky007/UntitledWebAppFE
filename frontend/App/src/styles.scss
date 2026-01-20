@@ -59,5 +59,25 @@ body {
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// Global responsive styles
+* {
+  box-sizing: border-box;
+}
+
+// Make Material buttons more touch-friendly on mobile
+@media (max-width: 768px) {
+  .mat-mdc-button,
+  .mat-mdc-raised-button,
+  .mat-mdc-icon-button {
+    min-height: 44px !important;
+  }
+
+  .mat-mdc-card {
+    margin: 0.5rem !important;
+  }
+
+  // Make form fields larger on mobile
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}

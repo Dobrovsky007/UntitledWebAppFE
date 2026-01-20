@@ -14,8 +14,8 @@
 
         <div class="trust-score">
           <span class="trust-label">Trust Score</span>
-          <span class="score" [ngClass]="{'high': user.trustScore >= 70, 'low': user.trustScore < 70}">
-            {{ user.trustScore | number:'1.1-1' }}
+          <span class="score" [ngClass]="{'high': user.rating >= 3.5, 'low': user.rating < 3.5}">
+            {{ user.rating | number:'1.1-1' }} / 5.0
           </span>
         </div>
       </div>

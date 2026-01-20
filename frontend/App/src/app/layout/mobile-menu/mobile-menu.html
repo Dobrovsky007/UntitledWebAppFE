@@ -1,0 +1,12 @@
+<div class="mobile-menu" [class.open]="isOpen">
+  <nav>
+    <ul class="menu-list">
+      <li *ngFor="let item of navItems">
+        <a [routerLink]="item.path" routerLinkActive="active" (click)="onNavClick()">
+          <i [ngClass]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

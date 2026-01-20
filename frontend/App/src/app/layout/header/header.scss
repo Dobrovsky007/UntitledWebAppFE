@@ -14,6 +14,10 @@
   min-height: 48px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
+  .burger-menu {
+    display: none; // Hidden by default on desktop
+  }
+
   .mat-icon,
   button[mat-icon-button] .mat-icon {
     color: #fff !important;
@@ -80,13 +84,21 @@
     width: 240px; // Match sidebar width
     max-width: 240px; // Prevent overflow
     overflow: hidden; // Hide any overflow
-    z-index: 999; // Lower than sidebar z-index
+    position: relative; // Changed from z-index to position
+    pointer-events: none; // Don't block clicks - logo shouldn't be clickable anyway
 
     .app-logo {
       height: 47px;
       width: auto;
       display: block;
+      pointer-events: auto; // Re-enable for logo itself if needed
     }
+  }
+
+  .burger-menu {
+    z-index: 1001; // Make sure it's above logo container
+    position: relative;
+    pointer-events: auto !important; // Ensure it's always clickable
   }
 }
 
@@ -96,6 +108,78 @@
   .username {
     font-weight: 600;
     color: #333;
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .header-toolbar {
+    padding: 0 8px;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px; // Fixed width for burger and avatar
+    gap: 8px;
+    align-items: center;
+
+    .burger-menu {
+      display: flex !important; // Show burger menu on mobile
+      align-items: center;
+      justify-content: center;
+      z-index: 1003 !important;
+      order: 1;
+      width: 48px;
+      height: 48px;
+      pointer-events: auto !important;
+      background: transparent;
+      
+      &:active {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .logo-container {
+      width: 100%;
+      max-width: none;
+      margin-right: 0;
+      order: 2;
+      justify-content: center;
+      pointer-events: none;
+      
+      .app-logo {
+        height: 32px;
+        max-width: 120px;
+      }
+    }
+
+    .center-section {
+      display: none; // Hide search on mobile
+    }
+
+    .right-section {
+      gap: 4px;
+      order: 3;
+      z-index: 1001;
+      justify-content: flex-end;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-toolbar {
+    padding: 0 4px;
+
+    .burger-menu {
+      margin-right: 4px;
+    }
+
+    .logo-container {
+      .app-logo {
+        height: 32px;
+      }
+    }
+
+    .center-section {
+      max-width: 150px;
+    }
   }
 }
 

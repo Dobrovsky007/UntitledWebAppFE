@@ -54,6 +54,17 @@ export class EventDetails implements OnInit {
       next: (data) => {
         this.event = data;
         this.participants = data.participants || [];
+        
+        // Debug logging
+        console.log('=== EVENT DETAILS LOADED ===');
+        console.log('Full event:', this.event);
+        console.log('Organizer:', this.event.organizer);
+        console.log('StatusOfEvent:', this.event.statusOfEvent);
+        console.log('Rated:', this.event.rated);
+        console.log('Current username:', localStorage.getItem('username'));
+        console.log('Is Organizer?', this.isOrganizer());
+        console.log('Can Rate?', this.canRateParticipants());
+        
         this.isLoading = false;
       },
       error: (err) => {
@@ -157,6 +168,35 @@ export class EventDetails implements OnInit {
         horizontalPosition: 'center',
         verticalPosition: 'bottom'
       });
+    }
+  }
+
+  /**
+   * Check if current user is the event organizer
+   */
+  isOrganizer(): boolean {
+    if (!this.event || !this.event.organizer) return false;
+    const currentUsername = localStorage.getItem('username');
+    return currentUsername === this.event.organizer.username;
+  }
+
+  /**
+   * Check if event can be rated (ended and not yet rated)
+   */
+  canRateParticipants(): boolean {
+    if (!this.event) return false;
+    // statusOfEvent === 2 means PAST
+    return this.isOrganizer() && 
+           this.event.statusOfEvent === 2 && 
+           this.event.rated === false;
+  }
+
+  /**
+   * Navigate to rate participants page
+   */
+  rateParticipants() {
+    if (this.eventId) {
+      this.router.navigate(['/rate-participants', this.eventId]);
     }
   }
 
