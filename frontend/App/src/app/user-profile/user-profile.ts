@@ -61,14 +61,14 @@ export class UserProfile implements OnInit, OnDestroy {
 
   // Sport and level mappings for backend
   private sportMapping: { [key: string]: number } = {
-    'Soccer': 1, 'Basketball': 2, 'Small Football': 3, 'Floorball': 4, 'Ice Hockey': 5,
-    'Volleyball': 6, 'Tennis': 7, 'Golf': 8, 'Table Tennis': 9, 'Badminton': 10,
-    'Running': 11, 'Swimming': 12, 'Handball': 13, 'Chess': 14, 'Cycling': 15,
-    'Frisbee': 16, 'Hiking': 17, 'Padel': 18, 'Footvolley': 19, 'Bowling': 20, 'Darts': 21
+    'Soccer': 0, 'Basketball': 1, 'Small Football': 2, 'Floorball': 3, 'Ice Hockey': 4,
+    'Volleyball': 5, 'Tennis': 6, 'Golf': 7, 'Table Tennis': 8, 'Badminton': 9,
+    'Running': 10, 'Swimming': 11, 'Handball': 12, 'Chess': 13, 'Cycling': 14,
+    'Frisbee': 15, 'Hiking': 16, 'Padel': 17, 'Footvolley': 18, 'Bowling': 19, 'Darts': 20
   };
 
   private levelMapping: { [key: string]: number } = {
-    'Beginner': 1, 'Intermediate': 2, 'Advanced': 3
+    'Beginner': 0, 'Intermediate': 1, 'Advanced': 2
   };
 
   private userSubscription: Subscription = new Subscription();
@@ -82,15 +82,6 @@ export class UserProfile implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadUserProfile();
     this.loadUserEvents();
-    
-    // Subscribe to user service updates in case user data changes elsewhere
-    this.userSubscription.add(
-      this.userService.user$.subscribe((user: User) => {
-        if (user.username) {
-          this.user = user;
-        }
-      })
-    );
   }
 
   ngOnDestroy() {
@@ -152,50 +143,6 @@ export class UserProfile implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
-  }
-
-  /**
-   * Test method to diagnose backend connection issues with JWT authentication
-   */
-  testBackendConnection(): void {
-    // Use the user service to make an authenticated request
-    this.userService.loadUserProfile().subscribe({
-      next: (response: any) => {
-        this.showSuccess('Backend connection test with JWT successful');
-      },
-      error: (error: any) => {
-        this.showError(`Backend test with JWT failed: ${error.status} ${error.statusText}`);
-      }
-    });
-  }
-
-  /**
-   * Check current authentication status and JWT token validity
-   */
-  checkAuthStatus(): void {
-    // Check if user is logged in
-    const isLoggedIn = this.authService.isAuthenticated();
-    
-    // Check token
-    const token = this.authService.getToken();
-    
-    if (token) {
-      // Try to decode token
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const isExpired = Date.now() > payload.exp * 1000;
-        
-        if (isExpired) {
-          this.showError('Authentication token has expired');
-        } else {
-          this.showSuccess('Authentication check completed - token is valid');
-        }
-      } catch (error) {
-        this.showError('Token decode error - invalid JWT format');
-      }
-    } else {
-      this.showError('No authentication token found');
-    }
   }
 
   /**
@@ -352,33 +299,9 @@ export class UserProfile implements OnInit, OnDestroy {
       next: (response) => {
         this.showSuccess('Sport added successfully!');
         
-        // Clear form
-        const addedSportName = this.getSportNameById(sportId) || this.newSport.name;
-        const addedLevelName = this.newSport.level;
-
-        // Optimistically update local user object so UI reflects change immediately
-        const newSportEntry = {
-          name: addedSportName,
-          level: addedLevelName,
-          sportId: sportId,
-          skillLevel: levelId
-        } as any;
-
-        this.user.sports = [...(this.user.sports || []), newSportEntry];
-        // Update shared user state
-        this.userService.setUser(this.user);
-
+        // Reload profile from backend to get the updated sports list
+        this.loadUserProfile();
         this.cancelAddingSport();
-
-        // Try to reload full profile but don't surface errors to the user if it fails
-        this.userService.loadUserProfile().subscribe({
-          next: (userData: any) => {
-            this.user = userData;
-          },
-          error: (err) => {
-            // Keep optimistic update and ignore backend error
-          }
-        });
       },
       error: (error) => {
         // Provide specific error messages based on status code
@@ -434,29 +357,37 @@ export class UserProfile implements OnInit, OnDestroy {
     // Optimistically remove from UI immediately
     const originalSports = [...this.user.sports];
     this.user.sports = this.user.sports.filter((_, i) => i !== index);
-    this.userService.setUser(this.user);
 
     this.userService.removeSport(sportId).subscribe({
       next: (response) => {
         this.showSuccess('Sport removed successfully!');
         
-        // Try to reload full profile but don't surface errors to the user if it fails
-        this.userService.loadUserProfile().subscribe({
-          next: (userData: any) => {
-            this.user = userData;
-          },
-          error: (err) => {
-            // Keep optimistic update and ignore backend error
-          }
-        });
+        // Reload profile from backend to get the updated sports list
+        this.loadUserProfile();
       },
       error: (error) => {
         // Revert optimistic update on error
         this.user.sports = originalSports;
-        this.userService.setUser(this.user);
         this.showError('Failed to remove sport');
       }
     });
+  }
+
+  /**
+   * Get sport name by ID for event history display
+   */
+  getSportNameForEvent(sportId: number | string): string {
+    if (!sportId && sportId !== 0) return 'Unknown Sport';
+    
+    const id = typeof sportId === 'string' ? parseInt(sportId) : sportId;
+    
+    // Reverse lookup in sportMapping
+    for (const [name, value] of Object.entries(this.sportMapping)) {
+      if (value === id) {
+        return name;
+      }
+    }
+    return 'Unknown Sport';
   }
 
   getSportId(sportName: string): number {
@@ -468,7 +399,7 @@ export class UserProfile implements OnInit, OnDestroy {
   }
 
   getAvatarUrl(): string {
-    return this.user.avatar || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjIwIiBmaWxsPSIjY2NjIi8+CjxlbGxpcHNlIGN4PSI2MCIgY3k9IjEwMCIgcng9IjMwIiByeT0iMjAiIGZpbGw9IiNjY2MiLz4KPC9zdmc+';
+    return this.user.avatar || 'assets/abstract-user-flat-4.svg';
   }
 
   private showSuccess(message: string) {

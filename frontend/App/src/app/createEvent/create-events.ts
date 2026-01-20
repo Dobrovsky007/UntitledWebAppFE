@@ -126,9 +126,9 @@ export class CreateEvents implements OnInit {
       const startDateStr = this.formatDate(formValue.startDate);
       const endDateStr = this.formatDate(formValue.endDate);
 
-      // Combine date + time into ISO timestamps
-      const startDateTime = new Date(`${startDateStr}T${formValue.startTime}`).toISOString();
-      const endDateTime = new Date(`${endDateStr}T${formValue.endTime}`).toISOString();
+      // Combine date + time into ISO timestamps (preserving local timezone)
+      const startDateTime = this.toLocalISOString(startDateStr, formValue.startTime);
+      const endDateTime = this.toLocalISOString(endDateStr, formValue.endTime);
 
       const payload = {
         ...formValue,
@@ -192,6 +192,14 @@ export class CreateEvents implements OnInit {
     }
     
     return '';
+  }
+
+  // Convert local date and time to ISO string without timezone conversion
+  private toLocalISOString(dateStr: string, timeStr: string): string {
+    const date = new Date(`${dateStr}T${timeStr}`);
+    const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const localDate = new Date(date.getTime() - tzOffset);
+    return localDate.toISOString().slice(0, -1); // Remove 'Z' to indicate local time
   }
 
   private showSuccess(message: string) {

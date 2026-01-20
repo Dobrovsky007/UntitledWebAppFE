@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'app-mobile-menu',
+  standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './sidebar.html',
-  styleUrl: './sidebar.scss'
+  templateUrl: './mobile-menu.html',
+  styleUrl: './mobile-menu.scss'
 })
-export class Sidebar {
+export class MobileMenu {
+  @Input() isOpen = false;
+  @Output() closeMenu = new EventEmitter<void>();
+
   navItems = [
     { path: '/explore-events', label: 'Explore Events', icon: 'fa-solid fa-compass' },
     { path: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
@@ -16,4 +20,8 @@ export class Sidebar {
     { path: '/notifications', label: 'Notifications', icon: 'fa-solid fa-bell' },
     { path: '/profile', label: 'User Profile', icon: 'fa-solid fa-user' }
   ];
+
+  onNavClick() {
+    this.closeMenu.emit();
+  }
 }

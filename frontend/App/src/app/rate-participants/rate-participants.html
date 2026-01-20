@@ -1,0 +1,140 @@
+<div class="rate-participants-container">
+  <div class="page-header">
+    <button mat-icon-button (click)="cancel()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Rate Participants</h2>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Loading participants...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error" class="content">
+    <!-- Event Info Card -->
+    <mat-card class="event-info-card">
+      <div class="event-details">
+        <mat-icon>event</mat-icon>
+        <div class="event-text">
+          <h3>{{ event?.title }}</h3>
+          <p class="event-sport">{{ event?.sport }}</p>
+        </div>
+      </div>
+      <div class="instructions">
+        <mat-icon>info</mat-icon>
+        <p>Rate each participant based on their attendance and behavior during the event. All participants must be rated.</p>
+      </div>
+    </mat-card>
+
+    <!-- Participants List -->
+    <div class="participants-section">
+      <h3>Participants ({{ participants.length }})</h3>
+      
+      <div class="participants-list">
+        <mat-card *ngFor="let participant of participants" class="participant-card">
+          <div class="participant-info">
+            <div class="participant-avatar">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="participant-details">
+              <h4>{{ participant.username }}</h4>
+              <p class="trust-score" *ngIf="participant.trustScore">
+                Current Trust Score: {{ participant.trustScore }}
+              </p>
+            </div>
+          </div>
+
+          <div class="rating-section">
+            <div class="stars">
+              <button 
+                *ngFor="let star of stars" 
+                (click)="setRating(participant.username, star)"
+                [class.filled]="isStarFilled(participant.username, star)"
+                [class.selected]="ratings[participant.username] === star"
+                class="star-button"
+                [disabled]="isSubmitting">
+                <mat-icon>{{ isStarFilled(participant.username, star) ? 'star' : 'star_border' }}</mat-icon>
+              </button>
+            </div>
+            
+            <div class="rating-label" *ngIf="ratings[participant.username] > 0">
+              <p>{{ getRatingLabel(ratings[participant.username]) }}</p>
+            </div>
+            
+            <div class="rating-label unrated" *ngIf="ratings[participant.username] === 0">
+              <p>Not rated yet</p>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Rating Guide -->
+    <mat-card class="rating-guide">
+      <h3><mat-icon>help_outline</mat-icon> Rating Guide</h3>
+      <div class="guide-items">
+        <div class="guide-item">
+          <span class="rating-stars">⭐⭐⭐⭐⭐</span>
+          <span class="rating-desc"><strong>Excellent:</strong> Showed up on time, played fairly, great teammate</span>
+        </div>
+        <div class="guide-item">
+          <span class="rating-stars">⭐⭐⭐⭐</span>
+          <span class="rating-desc"><strong>Good:</strong> Showed up, played fairly, minor issues</span>
+        </div>
+        <div class="guide-item">
+          <span class="rating-stars">⭐⭐⭐</span>
+          <span class="rating-desc"><strong>Average:</strong> Showed up but some behavioral concerns</span>
+        </div>
+        <div class="guide-item">
+          <span class="rating-stars">⭐⭐</span>
+          <span class="rating-desc"><strong>Poor:</strong> Late, unprepared, or poor attitude</span>
+        </div>
+        <div class="guide-item">
+          <span class="rating-stars">⭐</span>
+          <span class="rating-desc"><strong>Unacceptable:</strong> No-show or extremely poor behavior</span>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Submit Section -->
+    <div class="submit-section">
+      <div class="progress-info">
+        <mat-icon>{{ allParticipantsRated() ? 'check_circle' : 'info' }}</mat-icon>
+        <p>
+          <strong>{{ getRatedCount() }}</strong> 
+          of 
+          <strong>{{ participants.length }}</strong> 
+          participants rated
+        </p>
+      </div>
+      
+      <div class="action-buttons">
+        <button 
+          mat-stroked-button 
+          (click)="cancel()"
+          [disabled]="isSubmitting">
+          Cancel
+        </button>
+        
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="submitRatings()"
+          [disabled]="!allParticipantsRated() || isSubmitting">
+          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+          <span *ngIf="!isSubmitting">Submit Ratings</span>
+          <span *ngIf="isSubmitting">Submitting...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

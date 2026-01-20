@@ -51,6 +51,8 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.setToken(response.token);
+          // Store username for later use
+          localStorage.setItem('username', request.username);
           this.isAuthenticatedSubject.next(true);
         })
       );
@@ -61,6 +63,7 @@ export class AuthService {
    */
   logout(): void {
     this.clearToken();
+    localStorage.removeItem('username');
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/auth/login']);
   }

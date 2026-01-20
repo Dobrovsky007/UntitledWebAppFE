@@ -68,3 +68,10 @@
   color: #666;
   text-align: center;
 }
+
+// Hide sidebar on mobile - use mobile menu instead
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}

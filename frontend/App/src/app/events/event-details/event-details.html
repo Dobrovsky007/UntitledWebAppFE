@@ -8,12 +8,30 @@
   <ng-container *ngIf="!isLoading && !error && event">
     <!-- Event Header -->
     <mat-card class="event-header-card">
-  <div class="header-image" [style.backgroundImage]="'url(' + event.image + ')'"></div>
+      <div class="header-map">
+        <iframe 
+          *ngIf="event.latitude && event.longitude"
+          [src]="getMapUrl()" 
+          width="100%" 
+          height="180" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <div *ngIf="!event.latitude || !event.longitude" class="no-map">
+          <mat-icon>location_off</mat-icon>
+          <p>Location not available</p>
+        </div>
+      </div>
       <div class="event-header-content">
         <h2>{{ event.title }}</h2>
         <div class="tags">
-          <span class="tag sport">{{ event.category || event.sport }}</span>
           <span class="tag level">{{ event.level }}</span>
+          <span *ngIf="event.rated" class="tag rated-badge">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">check_circle</mat-icon>
+            Participants Rated
+          </span>
         </div>
 
         <div class="details">
@@ -32,8 +50,33 @@
         </div>
 
         <div class="actions">
-          <button mat-raised-button color="warn">Join Event</button>
-          <button mat-stroked-button>
+          <button 
+            *ngIf="canRateParticipants()"
+            mat-raised-button 
+            color="primary"
+            (click)="rateParticipants()">
+            <mat-icon>star</mat-icon>
+            Rate Participants
+          </button>
+          <button 
+            *ngIf="!canRateParticipants()"
+            mat-raised-button 
+            color="warn" 
+            (click)="joinEvent()" 
+            [disabled]="isJoining || (event.occupied >= event.capacity)">
+            <mat-icon>{{isJoining ? 'hourglass_empty' : 'add'}}</mat-icon>
+            {{isJoining ? 'Joining...' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event')}}
+          </button>
+          <button 
+            *ngIf="!canRateParticipants()"
+            mat-raised-button 
+            style="background-color: #f44336; color: white;" 
+            (click)="leaveEvent()" 
+            [disabled]="isLeaving">
+            <mat-icon>{{isLeaving ? 'hourglass_empty' : 'exit_to_app'}}</mat-icon>
+            {{isLeaving ? 'Leaving...' : 'Leave Event'}}
+          </button>
+          <button mat-stroked-button (click)="shareEvent()">
             <mat-icon>share</mat-icon>
             Share Event
           </button>
@@ -49,7 +92,7 @@
       </div>
 
       <div class="participant" *ngFor="let user of participants">
-        <img [src]="user.avatar || 'assets/avatars/default.jpg'" alt="{{ user.name || user.username }}" />
+        <img [src]="user.avatar || 'assets/abstract-user-flat-4.svg'" alt="{{ user.name || user.username }}" />
         <div class="info">
           <span class="name">{{ user.name || user.username }}</span>
           <span class="badge">{{ user.level }}</span>

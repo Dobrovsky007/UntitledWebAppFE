@@ -57,10 +57,26 @@ export class Register {
 
       this.authService.register({ username, email, password }).subscribe({
         next: (response) => {
-          this.showSuccess('Registration successful! Please login.');
-          this.router.navigate(['/auth/login']);
+          this.loading = false;
+          this.showSuccess('Registration successful! Please check your email to verify your account before logging in.');
+          // Show additional information about email verification
+          setTimeout(() => {
+            this.snackBar.open(
+              '📧 Verification email sent! Check your inbox and spam folder.',
+              'Got it',
+              {
+                duration: 8000,
+                panelClass: ['info-snackbar']
+              }
+            );
+          }, 3500);
+          
+          setTimeout(() => {
+            this.router.navigate(['/auth/login']);
+          }, 8000);
         },
         error: (error) => {
+          this.loading = false;
           // Better error handling for registration
           let errorMessage = 'Registration failed';
           
@@ -86,9 +102,6 @@ export class Register {
           
           this.error = errorMessage;
           this.showError(errorMessage);
-        },
-        complete: () => {
-          this.loading = false;
         }
       });
     }

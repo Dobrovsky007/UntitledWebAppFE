@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,9 +28,11 @@ import { Subscription } from 'rxjs';
   styleUrl: './header.scss'
 })
 export class Header implements OnInit, OnDestroy {
+  @Output() sidebarToggle = new EventEmitter<void>();
+  
   searchQuery = '';
   showSearch = false;
-  userAvatar = 'assets/default-avatar.png';
+  userAvatar = 'assets/abstract-user-flat-4.svg';
   userName = '';
   private userSubscription: Subscription = new Subscription();
 
@@ -40,10 +42,24 @@ export class Header implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to user changes when UserService has user$ observable
-    // For now, set default values
-    this.userAvatar = 'assets/default-avatar.png';
-    this.userName = 'User';
+    // Subscribe to user changes from UserService
+    this.userSubscription = this.userService.user$.subscribe(user => {
+      if (user && user.username) {
+        this.userName = user.username;
+        this.userAvatar = user.avatar || 'assets/abstract-user-flat-4.svg';
+      } else {
+        this.userName = 'User';
+        this.userAvatar = 'assets/abstract-user-flat-4.svg';
+      }
+    });
+
+    // Load user profile to populate the data
+    this.userService.loadUserProfile().subscribe({
+      error: (err) => {
+        console.error('Failed to load user profile:', err);
+        this.userName = 'User';
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -68,5 +84,9 @@ export class Header implements OnInit, OnDestroy {
 
   navigateToExploreEvents() {
     this.router.navigate(['/explore-events']);
+  }
+
+  toggleSidebar() {
+    this.sidebarToggle.emit();
   }
 }

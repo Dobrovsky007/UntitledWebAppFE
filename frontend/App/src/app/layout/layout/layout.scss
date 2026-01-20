@@ -1,6 +1,7 @@
 .layout {
   display: flex;
   height: 100vh;
+  position: relative;
 }
 
 .main {
@@ -16,4 +17,22 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    padding-top: 56px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
+  }
 }

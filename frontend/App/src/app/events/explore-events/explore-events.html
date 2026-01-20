@@ -180,6 +180,10 @@
                   <mat-icon>add</mat-icon>
                   {{(!event.freeSlots || event.freeSlots === 0) ? 'Full' : 'Join'}}
                 </button>
+                <button mat-button (click)="$event.stopPropagation(); shareEvent(event.id)">
+                  <mat-icon>share</mat-icon>
+                  Share
+                </button>
                 <button mat-button>
                   <mat-icon>info</mat-icon>
                   Details
