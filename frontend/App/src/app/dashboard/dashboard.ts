@@ -131,22 +131,28 @@ export class Dashboard implements OnInit {
       attendedPast: attendedPast$
     }).subscribe({
       next: (results) => {
+        // Calculate freeSlots for all events
+        const enhanceEvents = (events: Event[]) => events.map(event => ({
+          ...event,
+          freeSlots: event.capacity - (event.occupied || 0)
+        }));
+        
         // Upcoming tab: Show both hosted and attended upcoming events
         this.events.upcoming = [
-          ...results.hostedUpcoming.map(event => ({ ...event, type: 'hosted' as const })),
-          ...results.attendedUpcoming.map(event => ({ ...event, type: 'attended' as const }))
+          ...enhanceEvents(results.hostedUpcoming).map(event => ({ ...event, type: 'hosted' as const })),
+          ...enhanceEvents(results.attendedUpcoming).map(event => ({ ...event, type: 'attended' as const }))
         ];
         
         // Past tab: Show both hosted and attended past events
         this.events.past = [
-          ...results.hostedPast.map(event => ({ ...event, type: 'hosted' as const })),
-          ...results.attendedPast.map(event => ({ ...event, type: 'attended' as const }))
+          ...enhanceEvents(results.hostedPast).map(event => ({ ...event, type: 'hosted' as const })),
+          ...enhanceEvents(results.attendedPast).map(event => ({ ...event, type: 'attended' as const }))
         ];
         
         // Hosted tab: All hosted events (upcoming + past)
         this.events.hosted = [
-          ...results.hostedUpcoming,
-          ...results.hostedPast
+          ...enhanceEvents(results.hostedUpcoming),
+          ...enhanceEvents(results.hostedPast)
         ];
       },
       error: (error) => {

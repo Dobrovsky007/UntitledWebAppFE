@@ -74,29 +74,43 @@
 
           <!-- Start and End Time -->
           <div class="time-row">
-            <mat-form-field appearance="outline" class="form-field half rounded-field time-field">
-              <mat-label>Start Time</mat-label>
-              <input 
-                matInput 
-                type="time" 
-                formControlName="startTime"
-                class="time-input"
-                placeholder="HH:MM"
-                pattern="[0-9]{2}:[0-9]{2}"
-                inputmode="numeric" />
-            </mat-form-field>
+            <div class="form-field half time-picker-group">
+              <label class="time-label">Start Time</label>
+              <div class="time-selects">
+                <mat-form-field appearance="outline" class="time-select">
+                  <mat-label>Hour</mat-label>
+                  <mat-select formControlName="startHour">
+                    <mat-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <span class="time-separator">:</span>
+                <mat-form-field appearance="outline" class="time-select">
+                  <mat-label>Min</mat-label>
+                  <mat-select formControlName="startMinute">
+                    <mat-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
 
-            <mat-form-field appearance="outline" class="form-field half rounded-field time-field">
-              <mat-label>End Time</mat-label>
-              <input 
-                matInput 
-                type="time" 
-                formControlName="endTime"
-                class="time-input"
-                placeholder="HH:MM"
-                pattern="[0-9]{2}:[0-9]{2}"
-                inputmode="numeric" />
-            </mat-form-field>
+            <div class="form-field half time-picker-group">
+              <label class="time-label">End Time</label>
+              <div class="time-selects">
+                <mat-form-field appearance="outline" class="time-select">
+                  <mat-label>Hour</mat-label>
+                  <mat-select formControlName="endHour">
+                    <mat-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <span class="time-separator">:</span>
+                <mat-form-field appearance="outline" class="time-select">
+                  <mat-label>Min</mat-label>
+                  <mat-select formControlName="endMinute">
+                    <mat-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
           </div>
 
           <!-- Map Location Picker -->

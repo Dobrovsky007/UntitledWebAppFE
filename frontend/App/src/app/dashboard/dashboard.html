@@ -51,7 +51,7 @@
           </div>
           <div class="info-row">
             <mat-icon>people</mat-icon>
-            <span>{{ event.freeSlots || 0 }} of {{ event.capacity }} spots available</span>
+            <span>{{ event.freeSlots !== undefined ? event.freeSlots : (event.capacity - (event.occupied || 0)) }} of {{ event.capacity }} spots available</span>
           </div>
           <div class="info-row" *ngIf="event.statusOfEvent !== undefined">
             <mat-icon>info</mat-icon>

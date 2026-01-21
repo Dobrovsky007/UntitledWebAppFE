@@ -88,6 +88,39 @@ mat-sidenav-content {
   min-width: 200px;
 }
 
+/* Time picker styling */
+.time-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.time-selects {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-select {
+  flex: 1;
+  min-width: 80px;
+}
+
+.time-separator {
+  font-size: 24px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6);
+  padding: 0 4px;
+  margin-top: 8px;
+}
+
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
   .time-row,
@@ -100,6 +133,18 @@ mat-sidenav-content {
     width: 100%;
     min-width: 100%;
     flex: none;
+  }
+  
+  .time-picker-group {
+    width: 100%;
+  }
+  
+  .time-selects {
+    width: 100%;
+  }
+  
+  .time-select {
+    flex: 1;
   }
 }
 

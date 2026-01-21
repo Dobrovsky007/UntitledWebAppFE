@@ -57,11 +57,25 @@ export class CreateEvents implements OnInit, AfterViewInit {
     'Frisbee', 'Hiking', 'Padel', 'Foot Volley', 'Bowling', 'Darts'
   ];
 
+  // Time picker arrays
+  hours: string[] = [];
+  minutes: string[] = [];
+
   constructor(private fb: FormBuilder, 
     private http: HttpClient, 
     private router: Router, 
     private snackBar: MatSnackBar, 
     private ngZone: NgZone) {
+    
+    // Initialize hours (00-23)
+    for (let i = 0; i < 24; i++) {
+      this.hours.push(i.toString().padStart(2, '0'));
+    }
+    
+    // Initialize minutes (00, 05, 10, ..., 55)
+    for (let i = 0; i < 60; i += 5) {
+      this.minutes.push(i.toString().padStart(2, '0'));
+    }
     
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
@@ -70,8 +84,10 @@ export class CreateEvents implements OnInit, AfterViewInit {
       skillLevel: [0, Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      startTime: ['', Validators.required],
-      endTime: ['', Validators.required],
+      startHour: ['', Validators.required],
+      startMinute: ['', Validators.required],
+      endHour: ['', Validators.required],
+      endMinute: ['', Validators.required],
       capacity: [0, [Validators.required, Validators.min(1)]],
       latitude: [null],
       longitude: [null],
@@ -144,9 +160,13 @@ export class CreateEvents implements OnInit, AfterViewInit {
       const startDateStr = this.formatDate(formValue.startDate);
       const endDateStr = this.formatDate(formValue.endDate);
 
+      // Combine hour and minute into time strings
+      const startTime = `${formValue.startHour}:${formValue.startMinute}`;
+      const endTime = `${formValue.endHour}:${formValue.endMinute}`;
+
       // Combine date + time into ISO timestamps (preserving local timezone)
-      const startDateTime = this.toLocalISOString(startDateStr, formValue.startTime);
-      const endDateTime = this.toLocalISOString(endDateStr, formValue.endTime);
+      const startDateTime = this.toLocalISOString(startDateStr, startTime);
+      const endDateTime = this.toLocalISOString(endDateStr, endTime);
 
       const payload = {
         title: formValue.title,
