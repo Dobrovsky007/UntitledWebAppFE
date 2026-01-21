@@ -40,6 +40,7 @@ interface Event {
   image?: string;
   category?: string;
   freeSlots?: number;
+  organizer?: string;
 }
 
 @Component({
@@ -235,7 +236,7 @@ export class ExploreEvents implements OnInit {
   }
 
   /**
-   * Load all events that are in the future, sorted by recommendations
+   * Load user's joined and hosted events to track participation
    */
   loadAllEvents() {
     this.loadAllEventsWithRecommendations();
@@ -452,42 +453,6 @@ export class ExploreEvents implements OnInit {
            this.selectedFreeSlots !== null ||
            this.startDateAfter !== null ||
            this.endDateBefore !== null;
-  }
-
-  joinEvent(eventId: string) {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      this.snackBar.open('Please log in to join events', 'Close', { duration: 3000 });
-      return;
-    }
-
-    const headers = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
-
-    this.http.post(
-      `${environment.apiUrl}/user/event/join?eventId=${eventId}`,
-      {},
-      { headers, responseType: 'text' }
-    ).subscribe({
-      next: (response) => {
-        console.log('Successfully joined event:', response);
-        this.snackBar.open('Successfully joined the event!', 'Close', { duration: 3000 });
-        // Reload events to update the UI
-        this.loadAllEventsWithRecommendations();
-      },
-      error: (err) => {
-        console.error('Error joining event:', err);
-        if (err.status === 400) {
-          this.snackBar.open('You have already joined this event', 'Close', { duration: 3000 });
-        } else if (err.status === 401) {
-          this.snackBar.open('Authentication required. Please log in.', 'Close', { duration: 3000 });
-        } else {
-          this.snackBar.open('Failed to join event. Please try again.', 'Close', { duration: 3000 });
-        }
-      }
-    });
   }
 
   /**

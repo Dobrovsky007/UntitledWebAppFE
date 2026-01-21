@@ -63,9 +63,9 @@
             mat-raised-button 
             color="warn" 
             (click)="joinEvent()" 
-            [disabled]="isJoining || (event.occupied >= event.capacity)">
+            [disabled]="isJoining || (event.occupied >= event.capacity) || isUserParticipant()">
             <mat-icon>{{isJoining ? 'hourglass_empty' : 'add'}}</mat-icon>
-            {{isJoining ? 'Joining...' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event')}}
+            {{isJoining ? 'Joining...' : (isUserParticipant() ? 'Joined' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event'))}}
           </button>
           <button 
             *ngIf="!canRateParticipants()"

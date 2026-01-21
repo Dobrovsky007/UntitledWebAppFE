@@ -174,17 +174,11 @@
               </mat-card-content>
 
               <mat-card-actions align="end">
-                <button mat-button color="primary" 
-                        [disabled]="!event.freeSlots || event.freeSlots === 0"
-                        (click)="$event.stopPropagation(); joinEvent(event.id)">
-                  <mat-icon>add</mat-icon>
-                  {{(!event.freeSlots || event.freeSlots === 0) ? 'Full' : 'Join'}}
-                </button>
                 <button mat-button (click)="$event.stopPropagation(); shareEvent(event.id)">
                   <mat-icon>share</mat-icon>
                   Share
                 </button>
-                <button mat-button>
+                <button mat-button [routerLink]="['/event-details', event.id]">
                   <mat-icon>info</mat-icon>
                   Details
                 </button>

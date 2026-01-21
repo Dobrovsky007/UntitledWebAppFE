@@ -35,7 +35,7 @@
         </div>
         <mat-card-title>{{ event.title }}</mat-card-title>
         <mat-card-subtitle>
-          {{ formatEventForDisplay(event).category }} • {{ getSkillLevelName(event.skillLevel || 0) }}
+          {{ event.category }} • {{ getSkillLevelName(event.skillLevel || 0) }}
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -61,7 +61,7 @@
 
         <div class="event-tags">
           <mat-chip-set>
-            <mat-chip>{{ formatEventForDisplay(event).category }}</mat-chip>
+            <mat-chip>{{ event.category }}</mat-chip>
             <mat-chip>{{ getSkillLevelName(event.skillLevel || 0) }}</mat-chip>
             <mat-chip *ngIf="event.freeSlots && event.freeSlots > 0" [class.low-slots]="event.freeSlots <= 2">
               {{ event.freeSlots }} spot{{ event.freeSlots !== 1 ? 's' : '' }} left

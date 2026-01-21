@@ -56,6 +56,30 @@ export class Dashboard implements OnInit {
   selectedTab: 'upcoming' | 'past' | 'hosted' = 'upcoming';
   isLoading = false;
 
+  sportOptions = [
+    { value: 0, name: 'Soccer' },
+    { value: 1, name: 'Basketball' },
+    { value: 2, name: 'Small Football' },
+    { value: 3, name: 'Floorball' },
+    { value: 4, name: 'Ice Hockey' },
+    { value: 5, name: 'Volleyball' },
+    { value: 6, name: 'Tennis' },
+    { value: 7, name: 'Golf' },
+    { value: 8, name: 'Table Tennis' },
+    { value: 9, name: 'Badminton' },
+    { value: 10, name: 'Running' },
+    { value: 11, name: 'Swimming' },
+    { value: 12, name: 'Handball' },
+    { value: 13, name: 'Chess' },
+    { value: 14, name: 'Cycling' },
+    { value: 15, name: 'Frisbee' },
+    { value: 16, name: 'Hiking' },
+    { value: 17, name: 'Padel' },
+    { value: 18, name: 'Footvolley' },
+    { value: 19, name: 'Bowling' },
+    { value: 20, name: 'Darts' }
+  ];
+
   skillLevelOptions = [
     { value: 0, name: 'Beginner' },
     { value: 1, name: 'Intermediate' },
@@ -131,10 +155,11 @@ export class Dashboard implements OnInit {
       attendedPast: attendedPast$
     }).subscribe({
       next: (results) => {
-        // Calculate freeSlots for all events
+        // Calculate freeSlots and add sport name for all events
         const enhanceEvents = (events: Event[]) => events.map(event => ({
           ...event,
-          freeSlots: event.capacity - (event.occupied || 0)
+          freeSlots: event.capacity - (event.occupied || 0),
+          category: this.getSportName(event.sport || 0)
         }));
         
         // Upcoming tab: Show both hosted and attended upcoming events
@@ -167,6 +192,11 @@ export class Dashboard implements OnInit {
 
   refreshEvents(): void {
     this.loadEvents();
+  }
+
+  getSportName(sportId: number): string {
+    const sport = this.sportOptions.find(s => s.value === sportId);
+    return sport?.name || 'Unknown Sport';
   }
 
   getSkillLevelName(skillLevel: number): string {

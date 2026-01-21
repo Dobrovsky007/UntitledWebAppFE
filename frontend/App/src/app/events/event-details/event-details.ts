@@ -24,6 +24,7 @@ export class EventDetails implements OnInit {
   isJoining = false;
   isLeaving = false;
   eventId: string | null = null;
+  userEventIds: Set<string> = new Set();
 
   constructor(
     private route: ActivatedRoute, 
@@ -35,6 +36,7 @@ export class EventDetails implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadUserEvents();
     this.route.paramMap.subscribe(params => {
       this.eventId = params.get('id');
       
@@ -45,6 +47,38 @@ export class EventDetails implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadUserEvents() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    const headers = { 'Authorization': `Bearer ${token}` };
+    
+    this.http.get<any[]>(`${environment.apiUrl}/event/hosted/upcoming`, { headers }).subscribe({
+      next: (events) => {
+        events.forEach(event => this.userEventIds.add(event.id));
+      },
+      error: () => {}
+    });
+    
+    this.http.get<any[]>(`${environment.apiUrl}/event/attended/upcoming`, { headers }).subscribe({
+      next: (events) => {
+        events.forEach(event => this.userEventIds.add(event.id));
+      },
+      error: () => {}
+    });
+  }
+
+  isUserParticipant(): boolean {
+    const currentUsername = localStorage.getItem('username');
+    if (!currentUsername || !this.event) return false;
+    
+    // Check if user is the organizer
+    if (this.event.organizer === currentUsername) return true;
+    
+    // Check if user is in participants list
+    return this.participants.some(p => p.username === currentUsername);
   }
 
   loadEventDetails() {
