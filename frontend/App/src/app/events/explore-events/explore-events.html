@@ -174,7 +174,7 @@
               </mat-card-content>
 
               <mat-card-actions align="end">
-                <button mat-button (click)="$event.stopPropagation(); shareEvent(event.id)">
+                <button mat-button (click)="shareEvent(event.id, $event)">
                   <mat-icon>share</mat-icon>
                   Share
                 </button>

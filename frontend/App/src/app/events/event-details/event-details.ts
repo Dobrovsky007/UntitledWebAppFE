@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss'
 })
-export class EventDetails implements OnInit {
+export class EventDetails implements OnInit, OnDestroy {
   event: any = null;
   participants: any[] = [];
   isLoading = true;
@@ -37,16 +37,19 @@ export class EventDetails implements OnInit {
 
   ngOnInit() {
     this.loadUserEvents();
-    this.route.paramMap.subscribe(params => {
-      this.eventId = params.get('id');
-      
-      if (this.eventId) {
-        this.loadEventDetails();
-      } else {
-        this.error = 'No event ID provided.';
-        this.isLoading = false;
-      }
-    });
+    // Use snapshot instead of subscribe to avoid history issues
+    this.eventId = this.route.snapshot.paramMap.get('id');
+    
+    if (this.eventId) {
+      this.loadEventDetails();
+    } else {
+      this.error = 'No event ID provided.';
+      this.isLoading = false;
+    }
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
   }
 
   loadUserEvents() {
@@ -127,7 +130,12 @@ export class EventDetails implements OnInit {
   }
 
   
-  joinEvent() {
+  joinEvent(event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     if (!this.eventId || this.isJoining) return;
 
     const token = localStorage.getItem('authToken');
@@ -157,9 +165,11 @@ export class EventDetails implements OnInit {
     ).subscribe({
       next: (response) => {
         this.snackBar.open('Successfully joined the event!', 'Close', { duration: 3000 });
-        // Reload event details to update participant count
-        this.loadEventDetails();
         this.isJoining = false;
+        // Navigate to explore events page
+        setTimeout(() => {
+          this.router.navigate(['/explore-events']);
+        }, 1000);
       },
       error: (err) => {
         console.error('Error joining event:', err);
@@ -179,7 +189,12 @@ export class EventDetails implements OnInit {
   /**
    * Share event by copying the link to clipboard
    */
-  shareEvent() {
+  shareEvent(event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     if (!this.eventId) return;
     
     // Construct the event URL
@@ -195,6 +210,10 @@ export class EventDetails implements OnInit {
         horizontalPosition: 'center',
         verticalPosition: 'bottom'
       });
+      // Navigate to explore events page
+      setTimeout(() => {
+        this.router.navigate(['/explore-events']);
+      }, 1000);
     } else {
       // Show error notification
       this.snackBar.open('Failed to copy link. Please try again.', 'Close', {
@@ -228,7 +247,12 @@ export class EventDetails implements OnInit {
   /**
    * Navigate to rate participants page
    */
-  rateParticipants() {
+  rateParticipants(event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     if (this.eventId) {
       this.router.navigate(['/rate-participants', this.eventId]);
     }
@@ -237,7 +261,12 @@ export class EventDetails implements OnInit {
   /**
    * Leave the event
    */
-  leaveEvent() {
+  leaveEvent(event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     if (!this.eventId || this.isLeaving) return;
 
     const token = localStorage.getItem('authToken');
@@ -260,19 +289,12 @@ export class EventDetails implements OnInit {
     ).subscribe({
       next: (response) => {
         this.snackBar.open('Successfully left the event!', 'Close', { duration: 3000 });
-        
-        // Check if this was the last participant
-        if (this.participants.length <= 1) {
-          // Navigate back to explore events if user was the last one
-          this.snackBar.open('Event has been deleted as you were the last participant', 'Close', { duration: 4000 });
-          setTimeout(() => {
-            this.router.navigate(['/explore-events']);
-          }, 1500);
-        } else {
-          // Reload event details to update participant count
-          this.loadEventDetails();
-        }
         this.isLeaving = false;
+        
+        // Navigate to explore events page
+        setTimeout(() => {
+          this.router.navigate(['/explore-events']);
+        }, 1000);
       },
       error: (err) => {
         console.error('Error leaving event:', err);

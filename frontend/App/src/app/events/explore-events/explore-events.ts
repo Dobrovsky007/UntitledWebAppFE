@@ -458,7 +458,13 @@ export class ExploreEvents implements OnInit {
   /**
    * Share event by copying the link to clipboard
    */
-  shareEvent(eventId: string) {
+  shareEvent(eventId: string, clickEvent?: MouseEvent) {
+    // Prevent card navigation
+    if (clickEvent) {
+      clickEvent.stopPropagation();
+      clickEvent.preventDefault();
+    }
+    
     // Construct the event URL
     const eventUrl = `${window.location.origin}/event-details/${eventId}`;
     

@@ -54,7 +54,7 @@
             *ngIf="canRateParticipants()"
             mat-raised-button 
             color="primary"
-            (click)="rateParticipants()">
+            (click)="rateParticipants($event)">
             <mat-icon>star</mat-icon>
             Rate Participants
           </button>
@@ -62,7 +62,7 @@
             *ngIf="!canRateParticipants()"
             mat-raised-button 
             color="warn" 
-            (click)="joinEvent()" 
+            (click)="joinEvent($event)" 
             [disabled]="isJoining || (event.occupied >= event.capacity) || isUserParticipant()">
             <mat-icon>{{isJoining ? 'hourglass_empty' : 'add'}}</mat-icon>
             {{isJoining ? 'Joining...' : (isUserParticipant() ? 'Joined' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event'))}}
@@ -71,12 +71,12 @@
             *ngIf="!canRateParticipants()"
             mat-raised-button 
             style="background-color: #f44336; color: white;" 
-            (click)="leaveEvent()" 
+            (click)="leaveEvent($event)" 
             [disabled]="isLeaving">
             <mat-icon>{{isLeaving ? 'hourglass_empty' : 'exit_to_app'}}</mat-icon>
             {{isLeaving ? 'Leaving...' : 'Leave Event'}}
           </button>
-          <button mat-stroked-button (click)="shareEvent()">
+          <button mat-stroked-button (click)="shareEvent($event)">
             <mat-icon>share</mat-icon>
             Share Event
           </button>
