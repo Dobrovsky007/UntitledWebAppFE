@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
-
+import { NgZone } from '@angular/core';
 
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
@@ -20,7 +20,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-create-events',
@@ -46,7 +45,7 @@ import { NgZone } from '@angular/core';
   templateUrl: './create-events.html',
   styleUrls: ['./create-events.scss'],
 })
-export class CreateEvents implements OnInit {
+export class CreateEvents implements OnInit, AfterViewInit {
   eventForm!: FormGroup;
   map!: L.Map;
   marker!: L.Marker;
@@ -79,46 +78,65 @@ export class CreateEvents implements OnInit {
   });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('CreateEvents component initialized');
+    console.log('Event form:', this.eventForm);
+  }
 
   ngAfterViewInit() {
-    // Fix Leaflet marker icons
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-    });
-
-    // Initialize map
-    this.map = L.map('map').setView([48.7164, 21.2611], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
-
-    // Listen for click events
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      const { lat, lng } = e.latlng;
-
-      // If marker exists, update its position
-      if (this.marker) {
-        this.marker.setLatLng([lat, lng]);
-      } else {
-        // Otherwise create a new marker
-        this.marker = L.marker([lat, lng]).addTo(this.map);
-      }
-
-      // Update form fields
-      this.eventForm.patchValue({
-        latitude: lat,
-        longitude: lng
+    console.log('ngAfterViewInit called');
+    try {
+      // Fix Leaflet marker icons
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
       });
-    });
+
+      // Initialize map
+      const mapElement = document.getElementById('map');
+      console.log('Map element:', mapElement);
+      
+      if (mapElement) {
+        this.map = L.map('map').setView([48.7164, 21.2611], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
+
+        // Listen for click events
+        this.map.on('click', (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng;
+
+          // If marker exists, update its position
+          if (this.marker) {
+            this.marker.setLatLng([lat, lng]);
+          } else {
+            // Otherwise create a new marker
+            this.marker = L.marker([lat, lng]).addTo(this.map);
+          }
+
+          // Update form fields
+          this.eventForm.patchValue({
+            latitude: lat,
+            longitude: lng
+          });
+        });
+      } else {
+        console.error('Map element not found');
+      }
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
   }
 
   
   onSubmit() {
+    console.log('onSubmit called');
+    console.log('Form valid:', this.eventForm.valid);
+    console.log('Form value:', this.eventForm.value);
+    
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
 
@@ -131,20 +149,30 @@ export class CreateEvents implements OnInit {
       const endDateTime = this.toLocalISOString(endDateStr, formValue.endTime);
 
       const payload = {
-        ...formValue,
+        title: formValue.title,
+        sport: formValue.sport,
+        address: formValue.address,
+        skillLevel: formValue.skillLevel,
         startTime: startDateTime,
         endTime: endDateTime,
+        capacity: formValue.capacity,
+        latitude: formValue.latitude,
+        longitude: formValue.longitude,
       };
+
+      console.log('Sending payload:', payload);
 
       this.http.post(
         `${environment.apiUrl}/event/create`,
         payload,
         { 
           headers: { 'Content-Type': 'application/json' },
-          observe: 'response'
+          observe: 'response',
+          responseType: 'text'
         }
       ).subscribe({
         next: (response) => {
+          console.log('Success response:', response);
           if (response.status >= 200 && response.status < 300) {
             this.showSuccess('Event created successfully!');
             setTimeout(() => {
@@ -157,27 +185,21 @@ export class CreateEvents implements OnInit {
           }
         },
         error: (error) => {
-          if (error.status === 201) {
-            this.showSuccess('Event created successfully!');
-            setTimeout(() => {
-              this.ngZone.run(() => {
-                this.router.navigate(['/dashboard']);
-              });
-            }, 500);
-          } else {
-            const errorMessage = error.error?.message || error.error || 'Event creation failed';
-            this.showError(errorMessage);
-          }
+          console.error('Error response:', error);
+          const errorMessage = error.error?.message || error.error || 'Event creation failed';
+          this.showError(errorMessage);
         }
       });
     } else {
       this.eventForm.markAllAsTouched();
       this.showError('Please fill out all required fields.');
+      console.log('Form errors:', this.eventForm.errors);
     }
   }
 
   // Helper method to convert Date to YYYY-MM-DD string
   private formatDate(date: any): string {
+    console.log('formatDate called with:', date);
     if (!date) return '';
     
     // If it's already a string, return it
@@ -196,10 +218,13 @@ export class CreateEvents implements OnInit {
 
   // Convert local date and time to ISO string without timezone conversion
   private toLocalISOString(dateStr: string, timeStr: string): string {
+    console.log('toLocalISOString called with date:', dateStr, 'time:', timeStr);
     const date = new Date(`${dateStr}T${timeStr}`);
     const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
     const localDate = new Date(date.getTime() - tzOffset);
-    return localDate.toISOString().slice(0, -1); // Remove 'Z' to indicate local time
+    const result = localDate.toISOString().slice(0, -1); // Remove 'Z' to indicate local time
+    console.log('toLocalISOString result:', result);
+    return result;
   }
 
   private showSuccess(message: string) {

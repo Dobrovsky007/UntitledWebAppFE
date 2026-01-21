@@ -62,14 +62,22 @@
 
           <!-- Start and End Time -->
           <div class="time-row">
-            <mat-form-field appearance="outline" class="form-field half rounded-field">
+            <mat-form-field appearance="outline" class="form-field half rounded-field time-field">
               <mat-label>Start Time</mat-label>
-              <input matInput type="time" formControlName="startTime" />
+              <input 
+                matInput 
+                type="time" 
+                formControlName="startTime"
+                class="time-input" />
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field half rounded-field">
+            <mat-form-field appearance="outline" class="form-field half rounded-field time-field">
               <mat-label>End Time</mat-label>
-              <input matInput type="time" formControlName="endTime" />
+              <input 
+                matInput 
+                type="time" 
+                formControlName="endTime"
+                class="time-input" />
             </mat-form-field>
           </div>
 
@@ -82,7 +90,12 @@
           </div>
 
           <!-- Submit -->
-          <button mat-raised-button color="primary" type="submit" class="submit-btn">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="button"
+            class="submit-btn"
+            (click)="onSubmit()">
             Submit
           </button>
         </form>
