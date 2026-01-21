@@ -47,14 +47,26 @@
           <div class="time-row">
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate" readonly />
+              <input 
+                matInput 
+                [matDatepicker]="startPicker" 
+                formControlName="startDate" 
+                placeholder="MM/DD/YYYY"
+                class="date-input"
+                (click)="startPicker.open()" />
               <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
               <mat-datepicker #startPicker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field half rounded-field">
               <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate" readonly />
+              <input 
+                matInput 
+                [matDatepicker]="endPicker" 
+                formControlName="endDate" 
+                placeholder="MM/DD/YYYY"
+                class="date-input"
+                (click)="endPicker.open()" />
               <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
               <mat-datepicker #endPicker></mat-datepicker>
             </mat-form-field>
@@ -68,7 +80,10 @@
                 matInput 
                 type="time" 
                 formControlName="startTime"
-                class="time-input" />
+                class="time-input"
+                placeholder="HH:MM"
+                pattern="[0-9]{2}:[0-9]{2}"
+                inputmode="numeric" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field half rounded-field time-field">
@@ -77,7 +92,10 @@
                 matInput 
                 type="time" 
                 formControlName="endTime"
-                class="time-input" />
+                class="time-input"
+                placeholder="HH:MM"
+                pattern="[0-9]{2}:[0-9]{2}"
+                inputmode="numeric" />
             </mat-form-field>
           </div>
 
@@ -101,5 +119,7 @@
         </form>
       </mat-card>
     </div>
+    <!-- Safe area spacer for mobile bottom panels -->
+    <div class="bottom-spacer"></div>
   </mat-sidenav-content>
 </mat-sidenav-container>
