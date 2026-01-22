@@ -61,10 +61,10 @@ export class UserProfile implements OnInit, OnDestroy {
 
   // Sport and level mappings for backend
   private sportMapping: { [key: string]: number } = {
-    'Soccer': 0, 'Basketball': 1, 'Small Football': 2, 'Floorball': 3, 'Ice Hockey': 4,
-    'Volleyball': 5, 'Tennis': 6, 'Golf': 7, 'Table Tennis': 8, 'Badminton': 9,
-    'Running': 10, 'Swimming': 11, 'Handball': 12, 'Chess': 13, 'Cycling': 14,
-    'Frisbee': 15, 'Hiking': 16, 'Padel': 17, 'Footvolley': 18, 'Bowling': 19, 'Darts': 20
+    'Soccer': 1, 'Basketball': 2, 'Small Football': 3, 'Floorball': 4, 'Ice Hockey': 5,
+    'Volleyball': 6, 'Tennis': 7, 'Golf': 8, 'Table Tennis': 9, 'Badminton': 10,
+    'Running': 11, 'Swimming': 12, 'Handball': 13, 'Chess': 14, 'Cycling': 15,
+    'Frisbee': 16, 'Hiking': 17, 'Padel': 18, 'Footvolley': 19, 'Bowling': 20, 'Darts': 21
   };
 
   private levelMapping: { [key: string]: number } = {
