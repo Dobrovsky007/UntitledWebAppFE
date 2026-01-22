@@ -73,7 +73,7 @@ export class Login {
             errorMessage = 'Unable to connect to server. Please check your internet connection.';
           } else if (error.status === 401 || error.status === 403) {
             // Authentication failed - invalid credentials
-            errorMessage = 'Invalid email or password. Please try again.';
+            errorMessage = 'Invalid username or password. Please try again.';
           } else if (error.status >= 500) {
             // Server error (5xx)
             errorMessage = 'Server error. Please try again later.';
