@@ -261,20 +261,14 @@ export class Dashboard implements OnInit {
         console.log('Delete response status:', 'Success');
         
         if (result !== null) {
-          this.snackBar.open('Event deleted successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
-          
           // Remove the event from the local arrays immediately for instant UI update
           this.events.upcoming = this.events.upcoming.filter(e => e.id !== eventId);
           this.events.past = this.events.past.filter(e => e.id !== eventId);
           this.events.hosted = this.events.hosted.filter(e => e.id !== eventId);
           
-          console.log('Event removed from local arrays. Events before reload:', this.events);
+          console.log('Event removed from local arrays:', this.events);
           
-          // Then reload to ensure consistency with backend
-          setTimeout(() => {
-            console.log('Reloading events from backend...');
-            this.loadEvents();
-          }, 300);
+          this.snackBar.open('Event deleted successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
         }
       });
   }

@@ -329,6 +329,7 @@
 @media (max-width: 768px) {
   .rate-participants-container {
     padding: 1rem;
+    padding-bottom: 120px; // Extra space for sticky submit section
 
     .page-header h2 {
       font-size: 1.4rem;
@@ -359,6 +360,28 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 0.25rem;
+          }
+        }
+      }
+
+      .submit-section {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 1rem;
+        z-index: 1000;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+
+        .progress-info {
+          margin-bottom: 0.75rem;
+        }
+
+        .action-buttons {
+          button {
+            flex: 1;
+            min-width: unset;
           }
         }
       }

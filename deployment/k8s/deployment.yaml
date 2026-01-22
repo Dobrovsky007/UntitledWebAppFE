@@ -22,7 +22,7 @@ spec:
           ports:
             - containerPort: 80
       imagePullSecrets:
-        - name: regcred-frontend
+        - name: recred-secret
 
 ---
 apiVersion: v1
