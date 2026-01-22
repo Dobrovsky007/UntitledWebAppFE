@@ -377,15 +377,40 @@ export class UserProfile implements OnInit, OnDestroy {
    * Get sport name by ID for event history display
    */
   getSportNameForEvent(sportId: number | string): string {
-    if (!sportId && sportId !== 0) return 'Unknown Sport';
-    
-    const id = typeof sportId === 'string' ? parseInt(sportId) : sportId;
-    
-    // Reverse lookup in sportMapping
-    for (const [name, value] of Object.entries(this.sportMapping)) {
-      if (value === id) {
-        return name;
+    if (sportId === null || sportId === undefined) {
+      return 'Unknown Sport';
+    }
+
+    if (typeof sportId === 'string') {
+      const trimmed = sportId.trim();
+      const numeric = Number(trimmed);
+      if (!Number.isNaN(numeric)) {
+        // Prefer 0-based index for events, then fallback to mapping
+        const byIndex = this.getSportNameByIndex(numeric);
+        if (byIndex !== 'Unknown Sport') return byIndex;
+        const byMap = this.getSportNameById(numeric);
+        if (byMap) return byMap;
+        return 'Unknown Sport';
       }
+      const match = this.availableSports.find(s => s.toLowerCase() === trimmed.toLowerCase());
+      return match || 'Unknown Sport';
+    }
+
+    // Numeric ID: prefer 0-based index first for events
+    const byIndex = this.getSportNameByIndex(sportId);
+    if (byIndex !== 'Unknown Sport') return byIndex;
+    const byMap = this.getSportNameById(sportId);
+    if (byMap) return byMap;
+    return 'Unknown Sport';
+  }
+
+  private getSportNameByIndex(index: number): string {
+    if (!Number.isFinite(index)) {
+      return 'Unknown Sport';
+    }
+    const i = Math.trunc(index);
+    if (i >= 0 && i < this.availableSports.length) {
+      return this.availableSports[i];
     }
     return 'Unknown Sport';
   }
