@@ -81,3 +81,99 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     width: 100%;
   }
 }
+
+// Custom Snackbar/Toast Styles
+// Match site's design system: navy blue primary, clean typography, consistent border radius
+
+// Success Toast - Blue theme
+.success-snackbar {
+  --mdc-snackbar-container-color: #0a66c2 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  
+  .mat-mdc-snack-bar-container,
+  .mdc-snackbar__surface {
+    background-color: #0a66c2 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(10, 102, 194, 0.3) !important;
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-family: Roboto, "Helvetica Neue", sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button,
+  button {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+// Error Toast - Red theme
+.error-snackbar {
+  --mdc-snackbar-container-color: #d32f2f !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  
+  .mat-mdc-snack-bar-container,
+  .mdc-snackbar__surface {
+    background-color: #d32f2f !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(211, 47, 47, 0.3) !important;
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-family: Roboto, "Helvetica Neue", sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button,
+  button {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+// Info Toast - Dark navy theme
+.info-snackbar {
+  --mdc-snackbar-container-color: #003049 !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  
+  .mat-mdc-snack-bar-container,
+  .mdc-snackbar__surface {
+    background-color: #003049 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 48, 73, 0.3) !important;
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+    font-family: Roboto, "Helvetica Neue", sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+  }
+
+  .mat-mdc-button,
+  button {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}

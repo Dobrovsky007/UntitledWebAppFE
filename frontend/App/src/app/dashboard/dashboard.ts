@@ -248,9 +248,9 @@ export class Dashboard implements OnInit {
         catchError(error => {
           console.error('Delete HTTP error:', error);
           if (error.status === 403) {
-            this.snackBar.open('You are not the organizer of this event', 'Close', { duration: 3000 });
+            this.snackBar.open('You are not the organizer of this event', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           } else {
-            this.snackBar.open('Failed to delete event', 'Close', { duration: 3000 });
+            this.snackBar.open('Failed to delete event', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
           console.error('Delete error:', error);
           return of(null);
@@ -261,7 +261,7 @@ export class Dashboard implements OnInit {
         console.log('Delete response status:', 'Success');
         
         if (result !== null) {
-          this.snackBar.open('Event deleted successfully', 'Close', { duration: 3000 });
+          this.snackBar.open('Event deleted successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           
           // Remove the event from the local arrays immediately for instant UI update
           this.events.upcoming = this.events.upcoming.filter(e => e.id !== eventId);

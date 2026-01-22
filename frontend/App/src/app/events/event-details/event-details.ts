@@ -140,14 +140,14 @@ export class EventDetails implements OnInit, OnDestroy {
 
     const token = localStorage.getItem('authToken');
     if (!token) {
-      this.snackBar.open('Please log in to join events', 'Close', { duration: 3000 });
+      this.snackBar.open('Please log in to join events', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       this.router.navigate(['/auth/login']);
       return;
     }
 
     // Check if event is full
     if (this.event.occupied >= this.event.capacity) {
-      this.snackBar.open('This event is full', 'Close', { duration: 3000 });
+      this.snackBar.open('This event is full', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       return;
     }
 
@@ -164,7 +164,7 @@ export class EventDetails implements OnInit, OnDestroy {
       { headers, responseType: 'text' }
     ).subscribe({
       next: (response) => {
-        this.snackBar.open('Successfully joined the event!', 'Close', { duration: 3000 });
+        this.snackBar.open('Successfully joined the event!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
         this.isJoining = false;
         // Navigate to explore events page
         setTimeout(() => {
@@ -174,12 +174,12 @@ export class EventDetails implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error joining event:', err);
         if (err.status === 400) {
-          this.snackBar.open('You have already joined this event', 'Close', { duration: 3000 });
+          this.snackBar.open('You have already joined this event', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         } else if (err.status === 401) {
-          this.snackBar.open('Please log in to join events', 'Close', { duration: 3000 });
+          this.snackBar.open('Please log in to join events', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           this.router.navigate(['/auth/login']);
         } else {
-          this.snackBar.open('Failed to join event. Please try again.', 'Close', { duration: 3000 });
+          this.snackBar.open('Failed to join event. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         }
         this.isJoining = false;
       }
@@ -208,7 +208,8 @@ export class EventDetails implements OnInit, OnDestroy {
       this.snackBar.open('Event link copied to clipboard!', 'Close', {
         duration: 3000,
         horizontalPosition: 'center',
-        verticalPosition: 'bottom'
+        verticalPosition: 'bottom',
+        panelClass: ['success-snackbar']
       });
       // Navigate to explore events page
       setTimeout(() => {
@@ -219,7 +220,8 @@ export class EventDetails implements OnInit, OnDestroy {
       this.snackBar.open('Failed to copy link. Please try again.', 'Close', {
         duration: 3000,
         horizontalPosition: 'center',
-        verticalPosition: 'bottom'
+        verticalPosition: 'bottom',
+        panelClass: ['error-snackbar']
       });
     }
   }
@@ -271,7 +273,7 @@ export class EventDetails implements OnInit, OnDestroy {
 
     const token = localStorage.getItem('authToken');
     if (!token) {
-      this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000 });
+      this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -288,7 +290,7 @@ export class EventDetails implements OnInit, OnDestroy {
       { headers, responseType: 'text' }
     ).subscribe({
       next: (response) => {
-        this.snackBar.open('Successfully left the event!', 'Close', { duration: 3000 });
+        this.snackBar.open('Successfully left the event!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
         this.isLeaving = false;
         
         // Navigate to explore events page
@@ -299,12 +301,12 @@ export class EventDetails implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error leaving event:', err);
         if (err.status === 401) {
-          this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000 });
+          this.snackBar.open('Please log in to leave events', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           this.router.navigate(['/auth/login']);
         } else if (err.status === 500) {
-          this.snackBar.open('You are not a participant of this event', 'Close', { duration: 3000 });
+          this.snackBar.open('You are not a participant of this event', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         } else {
-          this.snackBar.open('Failed to leave event. Please try again.', 'Close', { duration: 3000 });
+          this.snackBar.open('Failed to leave event. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         }
         this.isLeaving = false;
       }

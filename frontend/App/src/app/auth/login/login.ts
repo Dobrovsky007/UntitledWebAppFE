@@ -67,21 +67,34 @@ export class Login {
         error: (error) => {
           let errorMessage = 'Login failed';
   
-          // Try to extract message from different error response formats
-          if (error.error?.message) {
-            errorMessage = error.error.message;
-          } else if (error.error?.error) {
-            errorMessage = error.error.error;
-          } else if (typeof error.error === 'string') {
-            errorMessage = error.error;
-          } else if (error.status === 0) {
-            errorMessage = 'Server not responding. Please check your connection.';
-          } else if (error.status === 401) {
-            errorMessage = 'Invalid username or password';
-          } else if (error.status === 500) {
+          // Handle different error scenarios with clear, user-friendly messages
+          if (error.status === 0) {
+            // Network error - server not responding
+            errorMessage = 'Unable to connect to server. Please check your internet connection.';
+          } else if (error.status === 401 || error.status === 403) {
+            // Authentication failed - invalid credentials
+            errorMessage = 'Invalid email or password. Please try again.';
+          } else if (error.status >= 500) {
+            // Server error (5xx)
             errorMessage = 'Server error. Please try again later.';
-          } else if (error.statusText) {
-            errorMessage = error.statusText;
+          } else if (error.status === 400) {
+            // Bad request - could be validation error
+            if (error.error?.message) {
+              errorMessage = error.error.message;
+            } else {
+              errorMessage = 'Invalid login request. Please check your input.';
+            }
+          } else {
+            // Try to extract message from error response
+            if (error.error?.message) {
+              errorMessage = error.error.message;
+            } else if (error.error?.error) {
+              errorMessage = error.error.error;
+            } else if (typeof error.error === 'string' && error.error.length > 0) {
+              errorMessage = error.error;
+            } else if (error.statusText && error.statusText !== 'Unknown Error') {
+              errorMessage = error.statusText;
+            }
           }
   
           this.error = errorMessage;
