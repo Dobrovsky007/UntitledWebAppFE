@@ -120,7 +120,15 @@ export class Login {
   }
 
   private showError(message: string) {
-    this.snackBar.open(message, 'Close', {
+    // Prevent showing raw JSON error objects
+    let displayMessage = message;
+    
+    // Check if message looks like JSON or contains technical details
+    if (message.includes('{') || message.includes('timestamp') || message.includes('path')) {
+      displayMessage = 'Login failed. Please check your credentials and try again.';
+    }
+    
+    this.snackBar.open(displayMessage, 'Close', {
       duration: 5000,
       panelClass: ['error-snackbar']
     });

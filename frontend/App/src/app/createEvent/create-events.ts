@@ -206,7 +206,25 @@ export class CreateEvents implements OnInit, AfterViewInit {
         },
         error: (error) => {
           console.error('Error response:', error);
-          const errorMessage = error.error?.message || error.error || 'Event creation failed';
+          
+          let errorMessage = 'Failed to create event. Please try again.';
+          
+          // Handle different error scenarios
+          if (error.status === 400) {
+            errorMessage = 'Please ensure all fields are filled correctly and dates are valid.';
+          } else if (error.status === 401 || error.status === 403) {
+            errorMessage = 'You are not authorized to create events. Please log in.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error occurred. Please check all fields and try again.';
+          } else if (error.status === 0) {
+            errorMessage = 'Unable to connect to server. Please check your internet connection.';
+          } else if (error.error && typeof error.error === 'string' && !error.error.includes('{')) {
+            // Only use error.error if it's a simple string, not JSON
+            errorMessage = error.error;
+          } else if (error.error?.message && typeof error.error.message === 'string') {
+            errorMessage = error.error.message;
+          }
+          
           this.showError(errorMessage);
         }
       });
