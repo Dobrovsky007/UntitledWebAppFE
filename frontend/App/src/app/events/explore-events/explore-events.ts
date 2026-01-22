@@ -466,7 +466,8 @@ export class ExploreEvents implements OnInit {
     }
     
     // Construct the event URL
-    const eventUrl = `${window.location.origin}/event-details/${eventId}`;
+    // Frontend hosted under /eventified, include prefix in shared link
+    const eventUrl = `${window.location.origin}/eventified/event-details/${eventId}`;
     
     // Copy to clipboard
     const success = this.clipboard.copy(eventUrl);

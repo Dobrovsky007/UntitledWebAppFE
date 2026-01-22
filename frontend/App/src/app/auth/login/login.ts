@@ -62,7 +62,7 @@ export class Login {
       .subscribe({
         next: (response) => {
           this.showSuccess('Login successful!');
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/explore-events']);
         },
         error: (error) => {
           let errorMessage = 'Login failed';

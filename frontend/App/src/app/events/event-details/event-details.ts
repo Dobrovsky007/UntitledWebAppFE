@@ -197,8 +197,8 @@ export class EventDetails implements OnInit, OnDestroy {
     
     if (!this.eventId) return;
     
-    // Construct the event URL
-    const eventUrl = `${window.location.origin}/event-details/${this.eventId}`;
+    // Construct the event URL (frontend hosted under /eventified)
+    const eventUrl = `${window.location.origin}/eventified/event-details/${this.eventId}`;
     
     // Copy to clipboard
     const success = this.clipboard.copy(eventUrl);
