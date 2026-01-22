@@ -31,7 +31,8 @@ export class RatingService {
   submitEventRatings(eventId: string, ratings: { [username: string]: number }): Observable<any> {
     return this.http.post(
       `${this.apiUrl}/ratings/event/${eventId}`,
-      ratings
+      ratings,
+      { responseType: 'text' }
     );
   }
 

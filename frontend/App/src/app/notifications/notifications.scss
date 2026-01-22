@@ -111,3 +111,40 @@
     }
   }
 }
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .notifications-container {
+    padding: 1rem;
+
+    .page-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .notification-item {
+      padding: 1rem;
+
+      .notification-title {
+        font-size: 1rem;
+      }
+
+      .notification-message {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-container {
+    padding: 0.75rem;
+
+    .page-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .notification-item {
+      padding: 0.75rem;
+    }
+  }
+}

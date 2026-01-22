@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +28,8 @@ import { Subscription } from 'rxjs';
   styleUrl: './header.scss'
 })
 export class Header implements OnInit, OnDestroy {
+  @Output() sidebarToggle = new EventEmitter<void>();
+  
   searchQuery = '';
   showSearch = false;
   userAvatar = 'assets/abstract-user-flat-4.svg';
@@ -82,5 +84,9 @@ export class Header implements OnInit, OnDestroy {
 
   navigateToExploreEvents() {
     this.router.navigate(['/explore-events']);
+  }
+
+  toggleSidebar() {
+    this.sidebarToggle.emit();
   }
 }

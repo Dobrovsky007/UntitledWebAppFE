@@ -8,7 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RatingService, Participant } from '../shared/services/rating.service';
+import { AuthService } from '../shared/services/auth.service';
 import { environment } from '../../environments/environment';
+
+interface Organizer {
+  username: string;
+}
 
 interface Event {
   id: string;
@@ -17,6 +22,7 @@ interface Event {
   endTime?: string;
   statusOfEvent?: number;
   rated?: boolean;
+  organizer?: Organizer;
 }
 
 @Component({
@@ -50,7 +56,8 @@ export class RateParticipantsComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private ratingService: RatingService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -69,8 +76,8 @@ export class RateParticipantsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    // Load event details first
-    this.http.get<Event>(`${environment.apiUrl}/event/${this.eventId}`)
+    // Load event details first - use correct endpoint
+    this.http.get<Event>(`${environment.apiUrl}/event/details/${this.eventId}`)
       .subscribe({
         next: (event) => {
           this.event = event;
@@ -102,10 +109,31 @@ export class RateParticipantsComponent implements OnInit {
   loadParticipants(): void {
     this.ratingService.getEventParticipants(this.eventId).subscribe({
       next: (participants) => {
-        this.participants = participants;
+        // Get current username (organizer)
+        const currentUsername = this.authService.getCurrentUsername();
+        const organizerUsername = this.event?.organizer?.username;
+        
+        // Filter out the organizer from participants
+        // The backend excludes the organizer from rateable participants
+        this.participants = participants.filter(p => {
+          return p.username !== currentUsername && p.username !== organizerUsername;
+        });
+        
+        console.log('All participants:', participants.map(p => p.username));
+        console.log('Organizer:', organizerUsername);
+        console.log('Filtered rateable participants:', this.participants.map(p => p.username));
+        
+        // Check if there are any participants to rate
+        if (this.participants.length === 0) {
+          this.showSuccess('No other participants to rate for this event');
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
+          }, 2000);
+          return;
+        }
         
         // Initialize ratings to 0 (no rating)
-        participants.forEach(p => {
+        this.participants.forEach(p => {
           this.ratings[p.username] = 0;
         });
         
@@ -160,8 +188,21 @@ export class RateParticipantsComponent implements OnInit {
 
     this.isSubmitting = true;
 
+    // Filter out any ratings that are 0 or invalid (only send 1-5)
+    const validRatings: { [username: string]: number } = {};
+    Object.keys(this.ratings).forEach(username => {
+      const rating = this.ratings[username];
+      if (rating >= 1 && rating <= 5) {
+        validRatings[username] = rating;
+      }
+    });
+
+    console.log('Submitting ratings:', validRatings);
+    console.log('Total participants:', this.participants.length);
+    console.log('Participant usernames:', this.participants.map(p => p.username));
+
     // Submit ratings to backend
-    this.ratingService.submitEventRatings(this.eventId, this.ratings).subscribe({
+    this.ratingService.submitEventRatings(this.eventId, validRatings).subscribe({
       next: () => {
         this.showSuccess('Ratings submitted successfully!');
         setTimeout(() => {
@@ -169,8 +210,21 @@ export class RateParticipantsComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        console.error('Failed to submit ratings:', err);
-        const errorMessage = err.error || 'Failed to submit ratings. Please try again.';
+        console.error('Failed to submit ratings - Full error:', err);
+        console.error('Error status:', err.status);
+        console.error('Error error:', err.error);
+        console.error('Error message:', err.message);
+        
+        // Extract error message properly
+        let errorMessage = 'Failed to submit ratings. Please try again.';
+        if (typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        
         this.showError(errorMessage);
         this.isSubmitting = false;
       }

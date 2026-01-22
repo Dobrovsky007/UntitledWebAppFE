@@ -28,6 +28,10 @@
         <h2>{{ event.title }}</h2>
         <div class="tags">
           <span class="tag level">{{ event.level }}</span>
+          <span *ngIf="event.rated" class="tag rated-badge">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">check_circle</mat-icon>
+            Participants Rated
+          </span>
         </div>
 
         <div class="details">
@@ -47,6 +51,15 @@
 
         <div class="actions">
           <button 
+            *ngIf="canRateParticipants()"
+            mat-raised-button 
+            color="primary"
+            (click)="rateParticipants()">
+            <mat-icon>star</mat-icon>
+            Rate Participants
+          </button>
+          <button 
+            *ngIf="!canRateParticipants()"
             mat-raised-button 
             color="warn" 
             (click)="joinEvent()" 
@@ -55,6 +68,7 @@
             {{isJoining ? 'Joining...' : (event.occupied >= event.capacity ? 'Event Full' : 'Join Event')}}
           </button>
           <button 
+            *ngIf="!canRateParticipants()"
             mat-raised-button 
             style="background-color: #f44336; color: white;" 
             (click)="leaveEvent()" 
